@@ -1,0 +1,23 @@
+# Stack build artifacts
+.stack-work/
+
+# Cabal build artifacts
+dist/
+dist-newstyle/
+cabal.project.local
+cabal.project.local~*
+
+# GHC artifacts
+*.hi
+*.o
+*.dyn_hi
+*.dyn_o
+
+# Executables
+*.exe
+*.out
+*.app
+
+# OS-specific files
+.DS_Store
+Thumbs.db
