@@ -6,7 +6,7 @@ import Data.Char (isLetter, isDigit)
 import Data.Set (toList, fromList)
 
 mIdent :: Parse String
-mIdent = (neList . sat) (\c -> isLetter c || isDigit c)
+mIdent = (neList . sat) (\c -> isLetter c || isDigit c || c == '_')
 
 mBrackets :: Parse a -> Parse a
 mBrackets p = do
