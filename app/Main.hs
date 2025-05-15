@@ -1,9 +1,11 @@
 module Main where
 
-import Lib.Parser.TS (parse, validate)
 import System.Environment (getArgs)
-import Data.Maybe (isNothing)
+import Data.Maybe (isNothing, fromJust)
 import System.Exit (exitFailure)
+
+import Lib.Model.TS (PTS(..))
+import Lib.Parser.TS (parse, validate)
 
 main :: IO ()
 main = do
@@ -27,7 +29,7 @@ main = do
             putStrLn "Invalid specification"
             exitFailure
         else do 
-            print v
+            print (P (fromJust v))
 
     -- The transition system is ready at this point
     

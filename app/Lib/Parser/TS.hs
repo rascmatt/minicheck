@@ -21,8 +21,11 @@ mElems pElem = do
     ee <- list (do { _ <- skipWs (sat (== ',')); skipWs pElem})
     return (e0:ee)
 
+mElemListNe :: Parse a -> Parse [a]
+mElemListNe = mBrackets . mElems
+
 mElemList :: Parse a -> Parse [a]
-mElemList = mBrackets . mElems
+mElemList p = mBrackets (pure [] `mplus` mElems p)
 
 m2Tuple :: Parse a -> Parse b -> Parse (a, b)
 m2Tuple p1 p2 = do
@@ -78,13 +81,13 @@ mOptional p = pure "" `mplus` p
 mTS :: Parse TS
 mTS = do
     _       <- (mOptional . mSection) ["s", "state", "states"]
-    states  <- mElemList mState
+    states  <- mElemListNe mState -- Not empty
     _       <- (mOptional . mSection) ["a", "action", "actions"]
     actions <- mElemList mAction
     _       <- (mOptional . mSection) ["t", "trans", "transition", "transitions"]
     trans   <- mElemList mTransition
     _       <- (mOptional . mSection) ["i", "init", "initial"]
-    initial <- mElemList mState
+    initial <- mElemListNe mState -- Not empty
     _       <- (mOptional . mSection) ["p", "props", "propositions"]
     props   <- mElemList mProposition
     _       <- (mOptional . mSection) ["l", "lable", "label", "lables", "labels"]
@@ -119,7 +122,7 @@ dedup = toList . fromList
 addSinkStates :: TS -> TS
 addSinkStates (st,a,ts,i,p,l) = (st, acts, ts ++ sinkTs, i, p, l)
     where
-        isTerminal s = any (\(Trans (t,_,_)) -> t == s) ts
+        isTerminal s = not (any (\(Trans (t,_,_)) -> t == s) ts)
         sinkTs = [Trans (t, Act "_", t) | t <- st, isTerminal t]
         acts   = if null sinkTs then a else Act "_" : a
 
@@ -153,11 +156,11 @@ validateInitial _ = True
 -- Validate that all referenced states are defined in the
 -- set of states
 validateStates :: TS -> Bool
-validateStates (st,_,ts,_,_,l) = length deduped == length st
+validateStates (st,_,ts,i,_,l) = length deduped == length st
     where
         trans = concat [[t1, t2] | Trans (t1, _, t2) <- ts]
         label = [s | Label (s, _) <- l]
-        deduped = dedup (trans ++ label)
+        deduped = dedup (trans ++ label ++ i)
 
 -- Validate that every action referenced in the transitions
 -- is defined in the set of available actions

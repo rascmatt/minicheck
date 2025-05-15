@@ -1,0 +1,9 @@
+states:
+  [a, b]
+actions: []
+transitions: []
+initial: [b]
+propositions: [p, q]
+labels: [
+  (a, p)
+]
