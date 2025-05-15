@@ -21,6 +21,6 @@ executable minicheck
     main-is:          Main.hs
     other-modules:    Lib.Parser.Base,Lib.Parser.TS,Lib.Parser.CTL,Lib.Model.TS,Lib.Model.CTL,Lib.Verify.Check
     -- other-extensions:
-    build-depends:    base ^>=4.17.2.1
+    build-depends:    containers ^>=0.6.7, base ^>=4.17.2.1
     hs-source-dirs:   app
     default-language: Haskell2010

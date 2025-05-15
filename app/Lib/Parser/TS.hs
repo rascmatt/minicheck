@@ -1,8 +1,9 @@
-module Lib.Parser.TS (parse) where
+module Lib.Parser.TS (parse, labels, validate) where
 
 import Lib.Parser.Base
 import Lib.Model.TS
 import Data.Char (isLetter, isDigit)
+import Data.Set (toList, fromList)
 
 mIdent :: Parse String
 mIdent = (neList . sat) (\c -> isLetter c || isDigit c)
@@ -87,8 +88,84 @@ mTS = do
     _       <- (mOptional . mSection) ["p", "props", "propositions"]
     props   <- mElemList mProposition
     _       <- (mOptional . mSection) ["l", "lable", "label", "lables", "labels"]
-    labels  <- mElemList mLabel
-    return (states, actions, trans, initial, props, labels)
+    lbls    <- mElemList mLabel
+    return (states, actions, trans, initial, props, lbls)
 
 parse :: String -> Maybe TS
 parse = topLevel mTS
+
+validate :: Maybe TS -> Maybe TS
+validate Nothing = Nothing
+validate (Just ts)
+    | valid normalized = Just normalized
+    | otherwise        = Nothing
+    where normalized = transform ts
+
+-- Utility
+
+labels :: TS -> State -> [Proposition]
+labels (_,_,_,_,_,[]) _         = []
+labels (_,_,_,_,_,ls) (State s) = mapped
+    where
+        filtered = filter (\(Label (State x, _)) -> x == s) ls
+        mapped   = map (\(Label (_, pp)) -> pp) filtered
+
+-- Transformation
+
+dedup :: Ord a => [a] -> [a]
+dedup = toList . fromList
+
+-- For a terminal state (no transition exists) add a self-loop
+addSinkStates :: TS -> TS
+addSinkStates (st,a,ts,i,p,l) = (st, acts, ts ++ sinkTs, i, p, l)
+    where
+        isTerminal s = any (\(Trans (t,_,_)) -> t == s) ts
+        sinkTs = [Trans (t, Act "_", t) | t <- st, isTerminal t]
+        acts   = if null sinkTs then a else Act "_" : a
+
+-- Normalize the labels:
+-- * add the state as label
+normLabels :: TS -> TS
+normLabels (st,a,ts,i,p,l) = (st,a,ts,i,p, nLabels)
+    where
+        name (State s) = s
+        labs s = filter (\(Label (State x, _)) -> x == name s) l
+        props  s = Prop (name s) : map (\(Label (_, pp)) -> pp) (labs s)
+        normalized s = dedup (props s)
+        nLabels = [Label (s, pr) | s <- st, pr <- normalized s]
+
+-- Deduplicate the lists
+deduplicateTs :: TS -> TS
+deduplicateTs (st,a,ts,i,p,l)
+    = (dedup st, dedup a, dedup ts, dedup i, dedup p, dedup l)
+
+-- Apply all transformations
+transform :: TS -> TS
+transform = addSinkStates . normLabels . deduplicateTs
+
+-- Semantic validation
+
+-- Validate that there is at least one initial state
+validateInitial :: TS -> Bool
+validateInitial (_,_,_,[],_,_) = False
+validateInitial _ = True
+
+-- Validate that all referenced states are defined in the
+-- set of states
+validateStates :: TS -> Bool
+validateStates (st,_,ts,_,_,l) = length deduped == length st
+    where
+        trans = concat [[t1, t2] | Trans (t1, _, t2) <- ts]
+        label = [s | Label (s, _) <- l]
+        deduped = dedup (trans ++ label)
+
+-- Validate that every action referenced in the transitions
+-- is defined in the set of available actions
+validateActions :: TS -> Bool
+validateActions (_,a,ts,_,_,_) = length a == length (dedup tsActions)
+    where
+        tsActions = map (\(Trans (_, aa, _)) -> aa) ts
+
+-- Apply all validations
+valid :: TS -> Bool
+valid ts = all (\p -> p ts) [validateInitial, validateStates, validateActions]
