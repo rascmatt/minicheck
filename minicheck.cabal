@@ -1,32 +1,26 @@
-cabal-version:       2.2
-
-name:                minicheck
-version:             0.1.0.0
--- synopsis:
+cabal-version:      3.0
+name:               minicheck
+version:            0.1.0.0
+synopsis:           CTL Model Checker written in Haskell
 -- description:
-homepage:            https://github.com/rascmatt/minicheck
-license:             BSD-3-Clause
-license-file:        LICENSE
-author:              Andrey Proskurin, Matthias Raschhofer
-maintainer:          matthias.raschhofer@student.tuwien.ac.at
-copyright:           2025 Andrey Proskurin, Matthias Raschhofer
-category:            Web
-build-type:          Simple
-extra-source-files:  README.md
-                     CHANGELOG.md
+homepage:           https://github.com/rascmatt/minicheck
+license:            BSD-3-Clause
+license-file:       LICENSE
+author:             Andrey Proskurin, Matthias Raschhofer
+maintainer:         e11908082@student.tuwien.ac.at
+copyright:          2025 Andrey Proskurin, Matthias Raschhofer
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+-- extra-source-files:
+
+common warnings
+    ghc-options: -Wall
 
 executable minicheck
-  hs-source-dirs:      src
-  main-is:             Main.hs
-  other-modules:       Lib.Parser.Base,Lib.Parser.TS,Lib.Parser.CTL,Lib.Model.TS,Lib.Model.CTL,Lib.Verify.Check
-  default-language:    Haskell2010
-  build-depends:       base >= 4.7 && < 5
-  ghc-options:         -Wall
-                       -Wcompat
-                       -Widentities
-                       -Wincomplete-record-updates
-                       -Wincomplete-uni-patterns
-                       -Wmissing-export-lists
-                       -Wmissing-home-modules
-                       -Wpartial-fields
-                       -Wredundant-constraints
+    import:           warnings
+    main-is:          Main.hs
+    other-modules:    Lib.Parser.Base,Lib.Parser.TS,Lib.Parser.CTL,Lib.Model.TS,Lib.Model.CTL,Lib.Verify.Check
+    -- other-extensions:
+    build-depends:    base ^>=4.17.2.1
+    hs-source-dirs:   app
+    default-language: Haskell2010
