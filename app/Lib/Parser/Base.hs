@@ -67,13 +67,21 @@ sat p = do
 apply :: Parse a -> String -> [(a, String)]
 apply (Parse p) = p
 
--- Possibly empty list (skipWs between elements)
+-- Possibly empty list
 list :: Parse a -> Parse [a]
-list p = pure [] `mplus` do { c <- skipWs p; s <- list p; return (c:s) }
+list p = pure [] `mplus` do { c <- p; s <- list p; return (c:s) }
+
+-- Non-empty list
+neList :: Parse a -> Parse [a]
+neList p = do { c <- p; s <- list p; return (c:s) }
+
+-- Possibly empty list (skipWs between elements)
+listSw :: Parse a -> Parse [a]
+listSw p = pure [] `mplus` do { c <- skipWs p; s <- listSw p; return (c:s) }
 
 -- Non-empty list (skipWs between elements)
-neList :: Parse a -> Parse [a]
-neList p = do { c <- skipWs p; s <- list p; return (c:s) }
+neListSw :: Parse a -> Parse [a]
+neListSw p = do { c <- skipWs p; s <- listSw p; return (c:s) }
 
 skipWs :: Parse a -> Parse a
 skipWs p = do
@@ -83,5 +91,8 @@ skipWs p = do
 isWs :: Char -> Bool
 isWs c = c `elem` [' ', '\t', '\n', '\r']
 
-isDigit :: Char -> Bool
-isDigit c = '0' <= c && c <= '9'
+topLevel :: Parse a -> String -> Maybe a
+topLevel (Parse p) input = case results of
+        []         -> Nothing
+        (result:_) -> Just result
+    where results = [ found | (found, []) <- p input]
