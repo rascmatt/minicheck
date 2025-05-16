@@ -1,46 +1,57 @@
-module Lib.Model.TS (TS, PTS(..), State(..), Action(..), Transition(..), Proposition(..), Label(..)) where
+module Lib.Model.TS (TS(..), State(..), Action(..), Transition(..), Proposition(..), Label(..)) where
 import Data.List (intercalate)
 
-newtype State = State String
-    deriving (Show, Eq, Ord)
+newtype State = State {
+    name :: String
+} deriving (Show, Eq, Ord)
 
-newtype Action = Act String
-    deriving (Show, Eq, Ord)
+newtype Action = Act {
+    action :: String
+} deriving (Show, Eq, Ord)
 
-newtype Transition = Trans (State, Action, State)
-    deriving (Show, Eq, Ord)
+data Transition = Trans {
+    from :: State,
+    when :: Action,
+    to   :: State
+} deriving (Show, Eq, Ord)
 
-newtype Proposition = Prop String
-    deriving (Show, Eq, Ord)
+newtype Proposition = Prop {
+    prop :: String
+} deriving (Show, Eq, Ord)
 
-newtype Label = Label (State, Proposition)
-    deriving (Show, Eq, Ord)
+data Label = Label {
+    state :: State,
+    lProp :: Proposition
+} deriving (Show, Eq, Ord)
 
-type TS = ([State], [Action], [Transition], [State], [Proposition], [Label])
+data TS = TS {
+    states  :: [State],
+    actions :: [Action],
+    trans   :: [Transition],
+    initial :: [State],
+    props   :: [Proposition],
+    labels  :: [Label]
+} deriving (Eq)
 
 -- Pretty-print TS
 
-newtype PTS = P TS
-instance Show PTS where
-    show (P (st,a,ts,i,p,l)) =
+instance Show TS where
+    show (TS st a ts i p l) =
         "states:\n" ++
-        "  [" ++ intercalate ", " (map pSt st) ++ "]\n" ++
+        "  [" ++ intercalate ", " (map name st) ++ "]\n" ++
         "actions:\n" ++
-        "  [" ++ intercalate ", " (map pAc a ) ++ "]\n" ++
+        "  [" ++ intercalate ", " (map action a ) ++ "]\n" ++
         (if null ts then "transitions:\n  []\n" else
         "transitions: [\n" ++
         "    " ++ intercalate ",\n    " (map pTr ts) ++ "\n]\n") ++
         "initial:\n" ++
-        "  [" ++ intercalate ", " (map pSt i ) ++ "]\n" ++
+        "  [" ++ intercalate ", " (map name i ) ++ "]\n" ++
         "propositions:\n" ++
         "  [" ++ intercalate ", " (map pPr p ) ++ "]\n" ++
         "labels: [\n" ++
         "    " ++ intercalate ",\n    " (map pLb l) ++ "\n]"
         where
-            pSt (State s) = s
-            pAc (Act ac)  = ac
-            pTr (Trans (s1, a0, s2)) 
-                = "(" ++ pSt s1 ++ ", " ++ pAc a0 ++ ", " ++ pSt s2 ++ ")"
+            pTr (Trans s1 a0 s2) 
+                = "(" ++ name s1 ++ ", " ++ action a0 ++ ", " ++ name s2 ++ ")"
             pPr (Prop pr) = pr
-            pLb (Label (s0, p0)) 
-                = "(" ++ pSt s0 ++ ", " ++ pPr p0 ++ ")"
+            pLb lbl = "(" ++ name (state lbl) ++ ", " ++ pPr (lProp lbl) ++ ")"

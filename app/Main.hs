@@ -4,7 +4,6 @@ import System.Environment (getArgs)
 import Data.Maybe (isNothing, fromJust)
 import System.Exit (exitFailure)
 
-import Lib.Model.TS (PTS(..))
 import Lib.Parser.TS (parse, validate)
 
 main :: IO ()
@@ -29,7 +28,7 @@ main = do
             putStrLn "Invalid specification"
             exitFailure
         else do 
-            print (P (fromJust v))
+            print (fromJust v)
 
     -- The transition system is ready at this point
     
