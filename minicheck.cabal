@@ -19,7 +19,7 @@ common warnings
 executable minicheck
     import:           warnings
     main-is:          Main.hs
-    other-modules:    Lib.Parser.Base,Lib.Parser.TS,Lib.Parser.CTL,Lib.Model.TS,Lib.Model.CTL,Lib.Verify.Check
+    other-modules:    Lib.Parser.Base,Lib.Parser.TS,Lib.Parser.CTL,Lib.Model.TS,Lib.Model.CTL,Lib.Verify.Check,Lib.Parser.Options
     -- other-extensions:
     build-depends:    containers ^>=0.6.7, base ^>=4.17.2.1
     hs-source-dirs:   app
