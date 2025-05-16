@@ -15,20 +15,20 @@ validateOpts options = do
     if (not . null) (Options.oIllegal options) then do
         putStr "Invalid arguments: "
         print (Options.oIllegal options)
-        putStrLn "Usage: minicheck --ts=filename [--help]"
+        putStrLn "Usage: minicheck --ts=<file> [--help]"
         exitFailure
     else do { return () }
 
     -- Print the usage info if the '--help' flag is used
     if Options.oHelp options then do
-        putStrLn "Usage: minicheck --ts=filename [--help]"
+        putStrLn "Usage: minicheck --ts=<file> [--help]"
         exitFailure
     else do { return () }
 
     -- Assert that we have an input TS file
     if null (Options.oTsFile options) then do
         putStrLn "Missing input specification. "
-        putStrLn "Usage: minicheck --ts=filename [--help]"
+        putStrLn "Usage: minicheck --ts=<file> [--help]"
         exitFailure
     else do { return () }
 
