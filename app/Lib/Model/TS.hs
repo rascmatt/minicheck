@@ -43,13 +43,14 @@ instance Show TS where
         "  [" ++ intercalate ", " (map action a ) ++ "]\n" ++
         (if null ts then "transitions:\n  []\n" else
         "transitions: [\n" ++
-        "    " ++ intercalate ",\n    " (map pTr ts) ++ "\n]\n") ++
+        "  " ++ intercalate ",\n  " (map pTr ts) ++ "\n]\n") ++
         "initial:\n" ++
         "  [" ++ intercalate ", " (map name i ) ++ "]\n" ++
         "propositions:\n" ++
         "  [" ++ intercalate ", " (map pPr p ) ++ "]\n" ++
+        (if null l then "labels:\n  []" else
         "labels: [\n" ++
-        "    " ++ intercalate ",\n    " (map pLb l) ++ "\n]"
+        "  " ++ intercalate ",\n  " (map pLb l) ++ "\n]")
         where
             pTr (Trans s1 a0 s2) 
                 = "(" ++ name s1 ++ ", " ++ action a0 ++ ", " ++ name s2 ++ ")"

@@ -21,7 +21,8 @@ data Statement
   | Assign Variable BoolExpr
   | Print BoolExpr
   | Read Variable
+  | Return BoolExpr
   deriving (Show, Eq)
 
-data Program = Prog [Variable] [Statement] BoolExpr
+data Program = Prog [Variable] [Statement]
   deriving (Show, Eq)

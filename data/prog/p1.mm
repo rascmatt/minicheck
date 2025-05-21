@@ -1,0 +1,9 @@
+procedure main (a, b) {
+    if (a) {
+        c = !b;
+    } else {
+        c = b;
+    }
+    d = c ^ true;
+    return d;
+}

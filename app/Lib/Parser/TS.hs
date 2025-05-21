@@ -6,7 +6,7 @@ import Data.Char (isLetter, isDigit)
 import Data.Set (toList, fromList)
 
 mIdent :: Parse String
-mIdent = (neList . sat) (\c -> isLetter c || isDigit c || c == '_')
+mIdent = (neList . sat) (\c -> isLetter c || isDigit c || elem c ['_', '.', '!', '-'])
 
 mBrackets :: Parse a -> Parse a
 mBrackets p = do
@@ -111,11 +111,11 @@ dedup = toList . fromList
 
 -- For a terminal state (no transition exists) add a self-loop
 addSinkStates :: TS -> TS
-addSinkStates (TS st a ts i p l) = TS st acts (ts ++ sinkTs) i p l
+addSinkStates (TS st a ts i p l) = TS st acts (dedup (ts ++ sinkTs)) i p l
     where
         isTerminal s = not (any (\(Trans t _ _) -> t == s) ts)
         sinkTs = [Trans t (Act "_") t | t <- st, isTerminal t]
-        acts   = if null sinkTs then a else Act "_" : a
+        acts   = dedup (if null sinkTs then a else Act "_" : a)
 
 -- Normalize the labels:
 -- * add the state as label

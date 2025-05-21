@@ -41,78 +41,26 @@ minicheck --ts=<file> [--help]
 
 ---
 
-## 🗂 TS Format Syntax
+## 🗂 TS Format (for minicheck)
 
-The **TS format** (Transition System) is a plain-text format for describing transition systems, used as input for `minicheck`.
+The TS format is a plain-text representation of a transition system. It consists of up to six (mandadtory) sections in the following order: `states`, `actions`, `transitions`, `init`, `props`, `labels`. Section headers are optional and have aliases (e.g., `s`, `a`, `t`, etc.).
 
-### ✅ Sections
+Identifiers may include letters, digits, `_`, `-`, `.`, and `!` (e.g., `s1`, `a-2`, `foo.bar!`).
 
-A TS file may contain the following (optionally named) **sections**, in the specified order. Section headers are optional and some aliases are supported (e.g., `states`, `s`, etc.). The expected sections are (in order):
+Each section contains a list in brackets:
 
-* **States**: `states`, `state`, `s`
-* **Actions**: `actions`, `action`, `a`
-* **Transitions**: `transitions`, `transition`, `trans`, `t`
-* **Initial states**: `initial`, `init`, `i`
-* **Propositions**: `propositions`, `props`, `p`
-* **Labels**: `labels`, `lables`, `lable`, `l`
-
-Each section contains a list enclosed in brackets (`[...]`) and uses the following formats:
-
----
-
-### 🔤 Identifiers
-
-Identifiers can contain letters, digits, and underscores (`_`). Example: `s1`, `my_state_3`.
-
----
-
-### 🔣 Section Formats
-
-#### States
-
-```txt
-states: [s1, s2, s3]
+```
+states:      [s1, s2, s3]                     -- aliases: state, s
+actions:     [a1, a2]                         -- aliases: action, a
+transitions: [(s1, a1, s2), (s2, a2, s3)]     -- aliases: trans, t
+init:        [s1]                             -- aliases: initial, i
+props:       [p1, p2]                         -- aliases: propositions, p
+labels:      [(s1, p1), (s2, p2)]             -- aliases: lables, lable, l
 ```
 
-#### Actions
+* Transitions are triples: (source_state, action, target_state)
 
-```txt
-actions: [a1, a2]
-```
-
-#### Transitions
-
-```txt
-transitions: [(s1, a1, s2), (s2, a2, s3)]
-```
-
-Each transition is a **triple**: `(source_state, action, target_state)`
-
-#### Initial States
-
-```txt
-init: [s1]
-```
-
-Must contain at least one state from the `states` list.
-
-#### Propositions
-
-```txt
-props: [p1, p2]
-```
-
-Used to label states.
-
-#### Labels
-
-```txt
-labels: [(s1, p1), (s2, p2)]
-```
-
-Each label is a **pair**: `(state, proposition)`, meaning that the proposition holds at that state.
-
----
+* Labels are pairs: (state, proposition) indicating propositions that hold at specific states
 
 ### 🧼 Notes and Validation
 

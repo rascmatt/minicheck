@@ -1,4 +1,0 @@
-procedure main (a) {
-    b = !false;
-    return true;
-}

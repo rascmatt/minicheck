@@ -98,6 +98,14 @@ mIfElseStatement = do
       (If b t) -> return (IfElse b t e)
       _ -> mzero
 
+mReturnStatement :: Parse Statement
+mReturnStatement = do
+    _ <- (skipWs . string) "return"
+    _ <- sat isWs
+    b <- skipWs mBoolExpr
+    _ <- (skipWs . sat) (== ';')
+    return (Return b)
+
 mStatements :: Parse [Statement]
 mStatements = list (
         mIfStatement      `mplus`
@@ -105,14 +113,6 @@ mStatements = list (
         mAssignment       `mplus`
         mPrintBool        `mplus`
         mReadBool)
-
-mReturnStatement :: Parse BoolExpr
-mReturnStatement = do
-    _ <- (skipWs . string) "return"
-    _ <- sat isWs
-    b <- skipWs mBoolExpr
-    _ <- (skipWs . sat) (== ';')
-    return b
 
 mArguments :: Parse [Variable]
 mArguments = do
@@ -133,7 +133,7 @@ mProgram = do
     s <- mStatements
     r <- mReturnStatement
     _ <- (skipWs . sat) (== '}')
-    return (Prog a s r)
+    return (Prog a (s++[r]))
 
 parse :: String -> Maybe Program
 parse = topLevel mProgram

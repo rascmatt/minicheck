@@ -61,7 +61,10 @@ main = do
             putStrLn "Failed to parse input program!"
             exitFailure
         else do
+            let ts = MiniTranslate.transform (fromJust miniProg)
+            let v  = validate (Just ts)
+            putStrLn "----"
             print (fromJust miniProg)
-            putStrLn "-->"
-            print (MiniTranslate.transform (fromJust miniProg))
+            putStrLn "----"
+            print v
 
