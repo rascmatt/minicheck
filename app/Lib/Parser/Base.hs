@@ -59,6 +59,11 @@ string :: String -> Parse String
 string ""       = return ""
 string (c:cs)   = do {mc <- char c; ms <- string cs; return (mc:ms)}
 
+strings :: [String] -> Parse String
+strings []  = mzero
+strings [s] = string s
+strings (s:sr) = string s `mplus` strings sr
+
 sat :: (Char -> Bool) -> Parse Char
 sat p = do
     c <- item
