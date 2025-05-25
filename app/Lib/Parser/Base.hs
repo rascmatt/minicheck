@@ -18,7 +18,7 @@ instance Applicative Parse where
     pure a = Parse (\cs -> [(a, cs)])
 
     (<*>) :: Parse (a -> b) -> Parse a -> Parse b
-    Parse f <*> Parse x = Parse (\cs -> [ (f2 a, rem2) | (a, rem1) <- x cs, (f2, rem2) <- f rem1 ])
+    p1 <*> p2 = do {x1 <- p1; x2 <- p2; return (x1 x2)}
 
 instance Monad Parse where
     -- >*>
@@ -27,6 +27,7 @@ instance Monad Parse where
 unbox :: Parse a -> (String -> [(a, String)])
 unbox (Parse p) = p
 
+-- TODO
 class Monad m => MonadPlus m where
     mzero :: m a
     mplus :: m a -> m a -> m a
@@ -69,8 +70,34 @@ sat p = do
     c <- item
     if p c then return c else mzero
 
-apply :: Parse a -> String -> [(a, String)]
-apply (Parse p) = p
+(+++) :: Parse a -> Parse a -> Parse a
+p +++ q = Parse (\cs -> case unbox (p `mplus` q) cs of
+    [] -> []
+    (x:_) -> [x])
+
+many :: Parse a -> Parse [a]
+many p = many1 p +++ return []
+
+many1 :: Parse a -> Parse [a]
+many1 p = do a <- p; as <- many p; return (a:as)
+
+sepby :: Parse a -> Parse b -> Parse [a]
+p `sepby` sep = (p `sepby1` sep) +++ return []
+
+sepby1 :: Parse a -> Parse b -> Parse [a]
+p `sepby1` sep = do
+    a <- p
+    as <- many (sep >> p)
+    return (a:as)
+
+space :: Parse String
+space = many (sat isWs)
+
+token :: Parse a -> Parse a
+token p = do {a <- p; space; return a}
+
+symbol :: String -> Parse String
+symbol = token . string
 
 -- Possibly empty list
 list :: Parse a -> Parse [a]

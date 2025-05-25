@@ -2,11 +2,11 @@ module Lib.Parser.TS (parse, validate) where
 
 import Lib.Parser.Base
 import Lib.Model.TS
-import Data.Char (isLetter, isDigit)
+import Data.Char (isLower, isDigit)
 import Data.Set (toList, fromList)
 
 mIdent :: Parse String
-mIdent = (neList . sat) (\c -> isLetter c || isDigit c || elem c ['_', '.', '!', '-'])
+mIdent = (neList . sat) (\c -> isLower c || isDigit c || elem c ['_', '.', '-'])
 
 mBrackets :: Parse a -> Parse a
 mBrackets p = do

@@ -43,9 +43,9 @@ minicheck --ts=<file> [--help]
 
 ## 🗂 TS Format (for minicheck)
 
-The TS format is a plain-text representation of a transition system. It consists of up to six (mandadtory) sections in the following order: `states`, `actions`, `transitions`, `init`, `props`, `labels`. Section headers are optional and have aliases (e.g., `s`, `a`, `t`, etc.).
+The TS format is a plain-text representation of a transition system. It consists of up to six (mandatory) sections in the following order: `states`, `actions`, `transitions`, `init`, `props`, `labels`. Section headers are optional and have aliases (e.g., `s`, `a`, `t`, etc.).
 
-Identifiers may include letters, digits, `_`, `-`, `.`, and `!` (e.g., `s1`, `a-2`, `foo.bar!`).
+Identifiers may only consist of lowercase letters, digits, `_`, `-` and `.` (e.g., `s1`, `a-2`, `foo.bar.baz`).
 
 Each section contains a list in brackets:
 
@@ -71,9 +71,9 @@ labels:      [(s1, p1), (s2, p2)]             -- aliases: lables, lable, l
 * Extra or duplicate elements are **deduplicated automatically**.
 * States without outgoing transitions are automatically given a **self-loop** using a special action `_`.
 
----
+### 📄 Example
 
-📄 Example
+This example models a vending machine with two products and a single initial state (pay).
 
 ```
 states:
@@ -87,12 +87,37 @@ transitions: [
     (soda, get_soda, pay),
     (beer, get_beer, pay)
 ]
-initial: 
+initial:
     [pay]
 propositions: []
 labels: []
 ```
 
-This example models a vending machine with two products and a single initial state (pay).
+## 🌳 CTL Format
 
----
+There are four temporal modalities. Each modality must be prepended by either `E` (Exists) or `A` (For all) quantifiers.
+Whitespace between quantifier and modalities is optional.
+
+* Next `X`
+* Until `U`
+* Eventually `F`
+* Globally `G`
+
+There are six supported logical operators, five binary operators and the negation.
+There are no precedence rules.
+The same binary operator, except for the non-associative implication, can be repeated multiple times without parentheses.
+Different operators always require parentheses to avoid defining their precedence.
+
+```
+E (green && red & (yellow || white) && open) U !blue
+
+A G (green => (white => blue))
+AG ((yellow => black) => red))
+
+EX True
+AX (False || red)
+
+EF !blue
+
+A !red U !white
+```

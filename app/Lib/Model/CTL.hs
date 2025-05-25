@@ -1,5 +1,26 @@
-module Lib.Model.CTL (CTL) where
+module Lib.Model.CTL where
 
--- TODO: Define Type Definitions to model a CTL Formula
+data CTL
+  = Truth
+  | Falsity
+  | AtomicProposition String
+  | BinaryOperation LogicalOperator CTL CTL
+  | Negation CTL
+  | Exists PathFormula
+  | ForAll PathFormula
+  deriving (Show, Eq)
 
-type CTL = () 
+data LogicalOperator
+  = Conjunction
+  | Disjunction
+  | Implication
+  | Equivalence
+  | ExclusiveDisjunction
+  deriving (Show, Eq)
+
+data PathFormula
+  = Next CTL
+  | Until CTL CTL
+  | Eventually CTL
+  | Globally CTL
+  deriving (Show, Eq)
