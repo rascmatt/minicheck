@@ -109,7 +109,9 @@ The same binary operator, except for the non-associative implication, can be rep
 Different operators always require parentheses to avoid defining their precedence.
 
 ```
-E (green && red & (yellow || white) && open) U !blue
+E (green && red && (yellow || white) && open) U !blue
+
+AF ((yellow && red) || (black => yellow) || (red == white) || (green != yellow) || !blue)
 
 A G (green => (white => blue))
 AG ((yellow => black) => red))
