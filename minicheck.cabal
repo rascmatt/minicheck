@@ -10,7 +10,6 @@ author:             Andrey Proskurin, Matthias Raschhofer
 maintainer:         e11908082@student.tuwien.ac.at
 copyright:          2025 Andrey Proskurin, Matthias Raschhofer
 build-type:         Simple
-extra-doc-files:    CHANGELOG.md
 -- extra-source-files:
 
 common warnings
@@ -23,6 +22,6 @@ executable minicheck
                       Lib.Model.CTL,Lib.Verify.Check,Lib.Parser.Options,
                       Lib.Extension.Minimm.Ast,Lib.Extension.Minimm.Parser,Lib.Extension.Minimm.Transform
     -- other-extensions:
-    build-depends:    containers ^>=0.6.7, base ^>=4.17.2.1
+    build-depends:    containers ^>=0.6.7, base ^>=4.17
     hs-source-dirs:   app
     default-language: Haskell2010
