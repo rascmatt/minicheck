@@ -10,7 +10,7 @@ ctlFormula = space >> stateFormula
 
 stateFormula :: Parse CTL
 stateFormula =
-            stateFormulaParen
+    stateFormulaParen
     `mplus` proposition
     `mplus` associativeOperation
     `mplus` (BinaryOperation Implication <$> stateFormulaParen <*> (symbol "=>" >> stateFormulaParen))
@@ -44,7 +44,7 @@ associativeOperation = do
   where
     assocOp :: Parse LogicalOperator
     assocOp =
-                (Conjunction <$ symbol "&&")
+        (Conjunction <$ symbol "&&")
         `mplus` (Disjunction <$ symbol "||")
         `mplus` (Equivalence <$ symbol "==")
         `mplus` (ExclusiveDisjunction <$ symbol "!=")
