@@ -104,13 +104,13 @@ main = execParser opts >>= main'
 main' :: CommandLine -> IO ()
 main' PrintExtensions = do
     putStrLn "MINI Language Support"
-main' (VerifyModel onlyShowSyntax modelFilepath formulaFilepaths) = do
+main' (VerifyModel onlyCheckSyntax modelFilepath formulaFilepaths) = do
     result <- runValidateT $ liftA2 (,) (readModel modelFilepath) (forM formulaFilepaths readCTL)
     (ts, formulas) <- case result of
         Left  err -> printPadded stderr err >> exitWith (ExitFailure 2)
         Right val -> return val
 
-    when onlyShowSyntax
+    when onlyCheckSyntax
         exitSuccess
 
     let verification = map (second (\ctl -> if verify ts ctl then "OK" else "FAIL")) formulas
