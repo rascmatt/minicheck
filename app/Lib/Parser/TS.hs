@@ -95,14 +95,7 @@ mTS = do
     return (TS s a t i p l)
 
 parse :: String -> Maybe TS
-parse = topLevel mTS
-
-validate :: Maybe TS -> Maybe TS
-validate Nothing = Nothing
-validate (Just ts)
-    | valid normalized = Just normalized
-    | otherwise        = Nothing
-    where normalized = transform ts
+parse input = normalize <$> topLevel mTS input
 
 -- Transformation
 
@@ -133,8 +126,8 @@ deduplicateTs (TS st a ts i p l)
     = TS (dedup st) (dedup a) (dedup ts) (dedup i) (dedup p) (dedup l)
 
 -- Apply all transformations
-transform :: TS -> TS
-transform = addSinkStates . normLabels . deduplicateTs
+normalize :: TS -> TS
+normalize = addSinkStates . normLabels . deduplicateTs
 
 -- Semantic validation
 
@@ -160,5 +153,5 @@ validateActions (TS _ a ts _ _ _) = length a == length (dedup tsActions)
         tsActions = map (\(Trans _ aa _) -> aa) ts
 
 -- Apply all validations
-valid :: TS -> Bool
-valid ts = all (\p -> p ts) [validateInitial, validateStates, validateActions]
+validate :: TS -> Bool
+validate ts = all (\p -> p ts) [validateInitial, validateStates, validateActions]

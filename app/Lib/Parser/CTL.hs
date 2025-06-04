@@ -1,9 +1,12 @@
-module Lib.Parser.CTL where
+module Lib.Parser.CTL (parse) where
 
 import Lib.Parser.Base
 import Lib.Model.CTL
 import Data.Char (isLower, isDigit)
 -- import Control.Monad (mfilter)
+
+parse :: String -> Maybe CTL
+parse = topLevel ctlFormula
 
 ctlFormula :: Parse CTL
 ctlFormula = space >> stateFormula
@@ -11,7 +14,6 @@ ctlFormula = space >> stateFormula
 stateFormula :: Parse CTL
 stateFormula =
     stateFormulaParen
-    `mplus` proposition
     `mplus` associativeOperation
     `mplus` (BinaryOperation Implication <$> stateFormulaParen <*> (symbol "=>" >> stateFormulaParen))
     `mplus` (Exists <$> (symbol "E" >> pathFormula))

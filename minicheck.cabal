@@ -22,7 +22,10 @@ executable minicheck
                       Lib.Model.CTL,Lib.Verify.Check,Lib.Parser.Options,
                       Lib.Extension.Minimm.Ast,Lib.Extension.Minimm.Parser,Lib.Extension.Minimm.Transform
     -- other-extensions:
-    build-depends:    containers ^>=0.6.7, base ^>=4.17
+    build-depends:    base ^>=4.17,
+                      containers ^>=0.6.7,
+                      optparse-applicative ^>=0.18,
+                      monad-validate ^>=1.3,
     hs-source-dirs:   app
     default-language: Haskell2010
 
@@ -31,6 +34,6 @@ test-suite minicheck-test
   hs-source-dirs:   test
   main-is:          Spec.hs
   build-depends:    base ^>=4.17,
-                    hspec ^>=2.11
+                    hspec ^>=2.11,
   hs-source-dirs:   app, test
   default-language: Haskell2010
