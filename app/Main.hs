@@ -13,7 +13,7 @@ import Data.List (isSuffixOf)
 import qualified Lib.Parser.TS as TSParser
 import qualified Lib.Parser.CTL as CTLParser
 import qualified Lib.Extension.Minimm.Parser as MiniParser
-import Lib.Model.TS (TS)
+import Lib.Model.TS (TS, toDot)
 import Lib.Model.CTL (CTL)
 import Lib.Extension.Minimm.Transform (transform)
 import Lib.Verify.Check
@@ -21,6 +21,8 @@ import Lib.Verify.Check
 data CommandLine
     = VerifyModel
         { onlySyntax   :: Bool
+        , debug        :: Bool
+        , dot          :: Bool
         , modelPath    :: FilePath
         , formulaPaths :: [FilePath]
         }
@@ -38,6 +40,14 @@ commandLine =
         <$> switch
             (  long "only-syntax"
             <> help "Check syntax correctness and exit"
+            )
+        <*> switch
+            (  long "debug"
+            <>  help "Print the parsed transition system and formulas"
+            )
+        <*> switch
+            (  long "dot"
+            <>  help "Print the transition system as DOT Graph"
             )
         <*> argument str (metavar "MODEL" <> action "file")
         <*> some (argument str (metavar "FORMULAS" <> action "file"))
@@ -77,10 +87,13 @@ readModel filepath
 
 readCTL :: FilePath -> ValidateT [ValidationError] IO (FilePath, CTL)
 readCTL filepath = do
-    content <- safeReadFile filepath
-    case CTLParser.parse content of
+    case CTLParser.parse filepath of
         Just ctl -> return (filepath, ctl)
-        Nothing  -> refute [(filepath, "syntax error")]
+        Nothing  -> do
+            content <- safeReadFile filepath
+            case CTLParser.parse content of
+                Just ctl -> return (filepath, ctl)
+                Nothing  -> refute [(filepath, "syntax error")]
 
 printPadded :: Handle -> [(String, String)] -> IO ()
 printPadded handle rows =
@@ -104,11 +117,21 @@ main = execParser opts >>= main'
 main' :: CommandLine -> IO ()
 main' PrintExtensions = do
     putStrLn "MINI Language Support"
-main' (VerifyModel onlyCheckSyntax modelFilepath formulaFilepaths) = do
+main' (VerifyModel onlyCheckSyntax debugMode dotFormat modelFilepath formulaFilepaths) = do
     result <- runValidateT $ liftA2 (,) (readModel modelFilepath) (forM formulaFilepaths readCTL)
     (ts, formulas) <- case result of
         Left  err -> printPadded stderr err >> exitWith (ExitFailure 2)
         Right val -> return val
+
+    when debugMode $ do
+        putStrLn "-----------------------"
+        putStrLn "Transition System:"
+        putStrLn (if dotFormat then toDot ts else show ts)
+        putStrLn "-----------------------"
+        putStrLn "Formulas:"
+        forM_ formulas $ \(origin, f) -> do
+            putStrLn $ origin ++ ": " ++ show f
+        putStrLn "-----------------------"
 
     when onlyCheckSyntax
         exitSuccess

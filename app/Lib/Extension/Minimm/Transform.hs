@@ -5,6 +5,7 @@ module Lib.Extension.Minimm.Transform (transform) where
 
 import Lib.Extension.Minimm.Ast
 import Lib.Model.TS
+import Lib.Parser.TS (normalize)
 import Data.Set (toList, fromList)
 
 data Context = Ctx {
@@ -14,7 +15,7 @@ data Context = Ctx {
 } deriving (Show, Eq)
 
 transform :: Program -> TS
-transform (Prog a s) = tCombine tss
+transform (Prog a s) = (normalize . tCombine) tss
     where
         -- All possible variable assignments
         assignments = subsets a
@@ -24,7 +25,13 @@ transform (Prog a s) = tCombine tss
         props  = [Prop ai | ai <- a]
         -- Label the states according to the atomic propositions true in that state
         labels = [Label (State (toname i)) p | i <- [0.. length assignments - 1], p <- [Prop ai | ai <- assignments !! i]]
-        initialTS = TS states [] [] states props labels
+
+        -- Introduce one origin state, which non-deterministically transitions to the actual init states
+        origin = State "origin"
+        oTrans = [Trans origin (Act "_") x | x <- states]
+        
+        initialTS = TS (origin : states) [] oTrans [origin] props labels
+        
         -- Create the transformation contexts
         ctxs = [Ctx s (toname i) initialTS | i <- [0.. length assignments - 1]]
         -- Get the resulting TS from each path of execution
@@ -36,7 +43,7 @@ transformCtx (Ctx [] c ts) = [Ctx [] c ts]
 -- Rule 1: If Statement
 transformCtx (Ctx ((If expr b):p) c ts)
     | tUndefined ctx expr = [tError ctx]
-    | tEval ctx expr    = t1
+    | tEval ctx expr      = t1
     | otherwise           = t2
         where
             ctx = Ctx (If expr b:p) c ts
@@ -48,8 +55,8 @@ transformCtx (Ctx ((If expr b):p) c ts)
 -- Rule 2: If-Else Statement
 transformCtx (Ctx ((IfElse expr b1 b2):p) c ts)
     | tUndefined ctx expr = [tError ctx]
-    | tEval ctx expr    = tt
-    | otherwise         = tf
+    | tEval ctx expr      = tt
+    | otherwise           = tf
         where
             ctx = Ctx (IfElse expr b1 b2:p) c ts
             at  = tNext ctx "t" (b1++p) []
@@ -112,7 +119,7 @@ tVariables (BinOp _ b1 b2) = dedup (tVariables b1 ++ tVariables b2)
 -- Check if any variables in BoolExpr are undefined
 -- in the current context
 tUndefined :: Context -> BoolExpr -> Bool
-tUndefined (Ctx _ _ ts) b = any not [x `elem` p | x <- v]
+tUndefined (Ctx _ _ ts) b = or [x `notElem` p | x <- v]
     where
         p = map prop (props ts)
         v = tVariables b

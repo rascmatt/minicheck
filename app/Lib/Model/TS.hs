@@ -1,4 +1,4 @@
-module Lib.Model.TS (TS(..), State(..), Action(..), Transition(..), Proposition(..), Label(..)) where
+module Lib.Model.TS (TS(..), State(..), Action(..), Transition(..), Proposition(..), Label(..), toDot) where
 import Data.List (intercalate)
 
 newtype State = State {
@@ -56,3 +56,36 @@ instance Show TS where
                 = "(" ++ name s1 ++ ", " ++ action a0 ++ ", " ++ name s2 ++ ")"
             pPr (Prop pr) = pr
             pLb lbl = "(" ++ name (state lbl) ++ ", " ++ pPr (lProp lbl) ++ ")"
+
+
+toDot :: TS -> String
+toDot (TS st _ tsList initStates _ lbls) =
+    "digraph TS {\n" ++
+    "  rankdir=LR;\n" ++
+    "  node [shape=ellipse];\n" ++
+    concatMap renderState st ++
+    concatMap renderInitArrow initStates ++
+    concatMap renderTrans tsList ++
+    "}"
+  where
+    renderState :: State -> String
+    renderState s =
+      let props = [prop p | Label s' p <- lbls, s' == s]
+          labelText = name s ++
+                      if null props then "" else "\\n{" ++ intercalate ", " props ++ "}"
+          baseAttrs = ["label=\"" ++ labelText ++ "\""]
+          styleAttrs = if s `elem` initStates
+                         then ["style=filled", "fillcolor=lightgray"]
+                         else []
+          attrs = baseAttrs ++ styleAttrs
+      in "  \"" ++ name s ++ "\" [" ++ intercalate ", " attrs ++ "];\n"
+
+    renderInitArrow :: State -> String
+    renderInitArrow s =
+      "  \"init_" ++ name s ++ "\" [shape=point];\n" ++
+      "  \"init_" ++ name s ++ "\" -> \"" ++ name s ++ "\";\n"
+
+    renderTrans :: Transition -> String
+    renderTrans (Trans fromS act toS) =
+      "  \"" ++ name fromS ++ "\" -> \"" ++ name toS ++
+      "\" [label=\"" ++ action act ++ "\"];\n"
