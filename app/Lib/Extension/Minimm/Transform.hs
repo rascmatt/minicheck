@@ -108,7 +108,6 @@ tVariables (Var v) = [v]
 tVariables (Lit _) = []
 tVariables (Not b) = tVariables b
 tVariables (BinOp _ b1 b2) = dedup (tVariables b1 ++ tVariables b2)
-tVariables (Nested b) = tVariables b
 
 -- Check if any variables in BoolExpr are undefined
 -- in the current context
@@ -134,7 +133,6 @@ tEval ctx (BinOp r b1 b2)
         where
             s1 = tEval ctx b1
             s2 = tEval ctx b2
-tEval ctx (Nested b) = tEval ctx b
 
 -- Transition to the next state with the specified name, remaining
 -- statements respecting the given variable assignments

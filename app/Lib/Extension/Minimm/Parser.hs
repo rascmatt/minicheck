@@ -1,4 +1,4 @@
-module Lib.Extension.Minimm.Parser (parse) where
+module Lib.Extension.Minimm.Parser where
 
 import Lib.Extension.Minimm.Ast
 import Lib.Parser.Base
@@ -21,14 +21,14 @@ mBool = do
 
 mRelator :: Parse Relator
 mRelator = do
-    r <- (skipWs . strings) ["&", "|", "=>", "<=>", "^"]
+    r <- (skipWs . strings) ["&", "|", "=>", "=", "^"]
     case r of
-        "&"   -> return And
-        "|"   -> return Or
-        "=>"  -> return Impl
-        "<=>" -> return Equiv
-        "^"   -> return Xor
-        _     -> mzero
+        "&"  -> return And
+        "|"  -> return Or
+        "=>" -> return Impl
+        "="  -> return Equiv
+        "^"  -> return Xor
+        _    -> mzero
 
 mBoolExprNest :: Parse BoolExpr
 mBoolExprNest =

@@ -12,7 +12,6 @@ data BoolExpr
   | Lit Literal
   | Not BoolExpr
   | BinOp Relator BoolExpr BoolExpr
-  | Nested BoolExpr
   deriving (Show, Eq)
 
 data Statement
