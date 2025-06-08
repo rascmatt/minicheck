@@ -19,7 +19,7 @@ executable minicheck
     import:           warnings
     main-is:          Main.hs
     other-modules:    Lib.Parser.Base,Lib.Parser.TS,Lib.Parser.CTL,Lib.Model.TS,
-                      Lib.Model.CTL,Lib.Verify.Check,Lib.Parser.Options,
+                      Lib.Model.CTL,Lib.Verify.Check,
                       Lib.Extension.Minimm.Ast,Lib.Extension.Minimm.Parser,Lib.Extension.Minimm.Transform
     -- other-extensions:
     build-depends:    base ^>=4.17,
@@ -34,7 +34,7 @@ test-suite minicheck-test
   hs-source-dirs:   test
   main-is:          Spec.hs
   other-modules:    Lib.Parser.Base,Lib.Parser.TS,Lib.Parser.CTL,Lib.Model.TS,
-                    Lib.Model.CTL,Lib.Verify.Check,Lib.Parser.Options,
+                    Lib.Model.CTL,Lib.Verify.Check,
                     Lib.Extension.Minimm.Ast,Lib.Extension.Minimm.Parser,Lib.Extension.Minimm.Transform,
                     Parser.CTLSpec
   build-depends:    base ^>=4.17,
