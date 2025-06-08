@@ -1,4 +1,4 @@
-module Lib.Parser.TS (parse, validate) where
+module Lib.Parser.TS where
 
 import Lib.Parser.Base
 import Lib.Model.TS
@@ -113,12 +113,13 @@ addSinkStates (TS st a ts i p l) = TS st acts (dedup (ts ++ sinkTs)) i p l
 -- Normalize the labels:
 -- * add the state as label
 normLabels :: TS -> TS
-normLabels (TS st a ts i p l)  = TS st a ts i p nLabels
+normLabels (TS st a ts i p l)  = TS st a ts i nProps nLabels
     where
         labs s = filter (\(Label (State x) _) -> x == name s) l
         pp   s = Prop (name s) : map lProp (labs s)
         normalized s = dedup (pp s)
         nLabels = [Label s pr | s <- st, pr <- normalized s]
+        nProps  = dedup (p ++ [ Prop ((prop . lProp) x) | x <- nLabels ])
 
 -- Deduplicate the lists
 deduplicateTs :: TS -> TS
@@ -139,19 +140,26 @@ validateInitial _ = True
 -- Validate that all referenced states are defined in the
 -- set of states
 validateStates :: TS -> Bool
-validateStates (TS st _ ts i _ l) = length deduped == length st
+validateStates (TS st _ ts i _ l) = not (any (`notElem` st) refs)
     where
-        tt      = concat [[t1, t2] | Trans t1 _ t2 <- ts]
-        label   = [s | Label s _ <- l]
-        deduped = dedup (tt ++ label ++ i)
+        tt    = concat [[t1, t2] | Trans t1 _ t2 <- ts]
+        label = [s | Label s _ <- l]
+        refs  = tt ++ label ++ i
 
 -- Validate that every action referenced in the transitions
 -- is defined in the set of available actions
 validateActions :: TS -> Bool
-validateActions (TS _ a ts _ _ _) = length a == length (dedup tsActions)
+validateActions (TS _ a ts _ _ _) = not (any (`notElem` a) refs)
     where
-        tsActions = map (\(Trans _ aa _) -> aa) ts
+        refs = [ r | (Trans _ r _) <- ts]
+
+-- Validate that every proposition referenced as a label
+-- is defined in the set of propositions
+validateProps :: TS -> Bool
+validateProps (TS _ _ _ _ ps ls) = not (any (`notElem` ps) refs)
+    where
+        refs = [ p | (Label _ p) <- ls]
 
 -- Apply all validations
 validate :: TS -> Bool
-validate ts = all (\p -> p ts) [validateInitial, validateStates, validateActions]
+validate ts = all (\p -> p ts) [validateInitial, validateStates, validateActions, validateProps]

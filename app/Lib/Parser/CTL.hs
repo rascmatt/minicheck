@@ -1,4 +1,4 @@
-module Lib.Parser.CTL (parse) where
+module Lib.Parser.CTL (parse, ctlFormula) where
 
 import Lib.Parser.Base
 import Lib.Model.CTL
