@@ -46,3 +46,4 @@ spec = do
             parse "procedure main(a){ a = true; }" `shouldBe` Nothing
             parse "procedure main(a){ return true; }" `shouldBe` Just (Prog ["a"] [Return (Lit True)])
             parse "procedure main(){ return true; }" `shouldBe` Nothing
+            parse "procedure main( a, b ){ return a; }" `shouldBe` Just (Prog ["a", "b"] [Return (Var "a")])

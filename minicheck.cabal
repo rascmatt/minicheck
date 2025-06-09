@@ -38,7 +38,8 @@ test-suite minicheck-test
   type:             exitcode-stdio-1.0
   hs-source-dirs:   test
   main-is:          Spec.hs
-  other-modules:    Parser.CTLSpec,Parser.TSSpec,Extension.ParserSpec,Extension.TransformSpec
+  other-modules:    Parser.CTLSpec,Parser.TSSpec,Extension.ParserSpec,
+                    Extension.TransformSpec,Model.TSSpec
   build-depends:    base ^>=4.17,
                     minicheck,
                     containers ^>=0.6.7,

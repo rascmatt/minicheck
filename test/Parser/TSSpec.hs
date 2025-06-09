@@ -64,6 +64,13 @@ spec = do
             topLevel mTS "s: [s0] a: [] t: [] i: []   p: [] l: []" `shouldBe` Nothing
             topLevel mTS "s: []   a: [] t: [] i: [s0] p: [] l: []" `shouldBe` Nothing
             topLevel mTS "s: []   a: [] t: [] i: []   p: [] l: []" `shouldBe` Nothing
+            -- Should parse and normalize
+            parse "[s0,s1][a][(s0,a,s1)][s0][p][(s0,p)]" `shouldBe` Just (TS 
+                [State "s0", State "s1"] 
+                [Act "_", Act "a"] 
+                [Trans (State "s0") (Act "a") (State "s1"), Trans (State "s1") (Act "_") (State "s1")] 
+                [State "s0"] [Prop "p", Prop "s0", Prop "s1"] 
+                [Label (State "s0") (Prop "p"), Label (State "s0") (Prop "s0"), Label (State "s1") (Prop "s1")])
     describe "Parser.TS (transform)" $ do
         it "sink state" $ do
             -- Add a self-loop for all states which do not have an outgoing transition
@@ -125,3 +132,13 @@ spec = do
                 (TS [State "s0"] [] [] [] [Prop "p"] [Label (State "s0") (Prop "q")]) `shouldBe` False
             validateProps
                 (TS [State "s0"] [] [] [] [Prop "p"] [Label (State "s0") (Prop "p")]) `shouldBe` True
+        it "validate (all)" $ do
+            -- Apply all validations
+            validate
+                (TS [State "s0"] [] [] [State "s0"] [Prop "p"] [Label (State "s0") (Prop "q")]) `shouldBe` False
+            validate
+                (TS [State "s0"] [] [] [State "s0"] [Prop "p"] [Label (State "s0") (Prop "p")]) `shouldBe` True
+            validate 
+                (TS [State "s0"] [Act "a"] [Trans (State "s0") (Act "_") (State "s0")] [State "s0"] [] []) `shouldBe` False
+            validate
+                (TS [State "s0"] [Act "a", Act "_"] [Trans (State "s0") (Act "_") (State "s0")] [State "s0"] [] []) `shouldBe` True

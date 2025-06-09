@@ -84,7 +84,6 @@ spec = do
             let ts = parse "procedure main(a){ return a ^ (a & false); }"
             ts `hasStates`      ["origin", "i0", "i1", "i0.r", "i1.r"]
 
-
 hasStates :: TS -> [String] -> Expectation
 hasStates ts ss = do
     let st = [ s | (State s) <- states ts]
