@@ -1,11 +1,11 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 {-# OPTIONS_GHC -Wno-name-shadowing #-}
 
-module Lib.Extension.Minimm.Transform (transform) where
+module Extension.Minimm.Transform (transform) where
 
-import Lib.Extension.Minimm.Ast
-import Lib.Model.TS
-import Lib.Parser.TS (normalize)
+import Extension.Minimm.Ast
+import Model.TS
+import Parser.TS (normalize)
 import Data.Set (toList, fromList)
 
 data Context = Ctx {

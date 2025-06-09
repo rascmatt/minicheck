@@ -2,9 +2,9 @@ module Parser.TSSpec (spec) where
 
 import Test.Hspec
 
-import Lib.Parser.Base (topLevel, string)
-import Lib.Parser.TS
-import Lib.Model.TS
+import Parser.Base (topLevel, string)
+import Parser.TS
+import Model.TS
 
 spec :: Spec
 spec = do

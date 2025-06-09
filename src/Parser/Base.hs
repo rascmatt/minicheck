@@ -1,7 +1,7 @@
 {-# LANGUAGE InstanceSigs #-}
 {-# OPTIONS_GHC -Wno-missing-export-lists #-}
 
-module Lib.Parser.Base where
+module Parser.Base where
 
 -- Monad Parser Base
 

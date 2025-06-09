@@ -1,7 +1,7 @@
-module Lib.Parser.CTL (parse, ctlFormula) where
+module Parser.CTL (parse, ctlFormula) where
 
-import Lib.Parser.Base
-import Lib.Model.CTL
+import Parser.Base
+import Model.CTL
 import Data.Char (isLower, isDigit)
 -- import Control.Monad (mfilter)
 

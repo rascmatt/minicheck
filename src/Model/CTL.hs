@@ -1,4 +1,4 @@
-module Lib.Model.CTL where
+module Model.CTL where
 
 data CTL
   = Truth

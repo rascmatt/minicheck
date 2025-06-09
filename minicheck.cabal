@@ -15,14 +15,19 @@ build-type:         Simple
 common warnings
     ghc-options: -Wall
 
+library
+  hs-source-dirs:   src
+  exposed-modules:  Parser.Base,Parser.TS,Parser.CTL,Model.TS,
+                    Model.CTL,Verify.Check,
+                    Extension.Minimm.Ast,Extension.Minimm.Parser,Extension.Minimm.Transform
+  build-depends:    base ^>=4.17,containers ^>=0.6.7
+  default-language: Haskell2010
+
 executable minicheck
     import:           warnings
     main-is:          Main.hs
-    other-modules:    Lib.Parser.Base,Lib.Parser.TS,Lib.Parser.CTL,Lib.Model.TS,
-                      Lib.Model.CTL,Lib.Verify.Check,
-                      Lib.Extension.Minimm.Ast,Lib.Extension.Minimm.Parser,Lib.Extension.Minimm.Transform
-    -- other-extensions:
     build-depends:    base ^>=4.17,
+                      minicheck,
                       containers ^>=0.6.7,
                       optparse-applicative ^>=0.18,
                       monad-validate ^>=1.3,
@@ -33,13 +38,11 @@ test-suite minicheck-test
   type:             exitcode-stdio-1.0
   hs-source-dirs:   test
   main-is:          Spec.hs
-  other-modules:    Lib.Parser.Base,Lib.Parser.TS,Lib.Parser.CTL,Lib.Model.TS,
-                    Lib.Model.CTL,Lib.Verify.Check,
-                    Lib.Extension.Minimm.Ast,Lib.Extension.Minimm.Parser,Lib.Extension.Minimm.Transform,
-                    Parser.CTLSpec,Parser.TSSpec,Extension.ParserSpec,Extension.TransformSpec
+  other-modules:    Parser.CTLSpec,Parser.TSSpec,Extension.ParserSpec,Extension.TransformSpec
   build-depends:    base ^>=4.17,
+                    minicheck,
                     containers ^>=0.6.7,
                     hspec ^>=2.11,
-  hs-source-dirs:   app, test
+  hs-source-dirs:   test
   default-language: Haskell2010
   build-tool-depends: hspec-discover:hspec-discover == 2.*

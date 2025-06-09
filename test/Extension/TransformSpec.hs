@@ -2,11 +2,11 @@ module Extension.TransformSpec (spec) where
 
 import Test.Hspec
 
-import Lib.Extension.Minimm.Parser (mProgram)
-import Lib.Extension.Minimm.Ast
-import Lib.Extension.Minimm.Transform
-import Lib.Parser.Base (Parse(..), topLevel, unbox)
-import Lib.Model.TS (TS (..), State(..), Transition(..), Label (..), Proposition (..))
+import Extension.Minimm.Parser (mProgram)
+import Extension.Minimm.Ast
+import Extension.Minimm.Transform
+import Parser.Base (Parse(..), topLevel, unbox)
+import Model.TS (TS (..), State(..), Transition(..), Label (..), Proposition (..))
 import Control.Monad (when, unless)
 
 spec :: Spec

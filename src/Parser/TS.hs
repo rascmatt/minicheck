@@ -1,7 +1,7 @@
-module Lib.Parser.TS where
+module Parser.TS where
 
-import Lib.Parser.Base
-import Lib.Model.TS
+import Parser.Base
+import Model.TS
 import Data.Char (isLower, isDigit)
 import Data.Set (toList, fromList)
 

@@ -10,13 +10,13 @@ import Control.Exception (try, IOException)
 import Control.Monad.Validate
 import Data.List (isSuffixOf)
 
-import qualified Lib.Parser.TS as TSParser
-import qualified Lib.Parser.CTL as CTLParser
-import qualified Lib.Extension.Minimm.Parser as MiniParser
-import Lib.Model.TS (TS, toDot)
-import Lib.Model.CTL (CTL)
-import Lib.Extension.Minimm.Transform (transform)
-import Lib.Verify.Check
+import qualified Parser.TS as TSParser
+import qualified Parser.CTL as CTLParser
+import qualified Extension.Minimm.Parser as MiniParser
+import Model.TS (TS, toDot)
+import Model.CTL (CTL)
+import Extension.Minimm.Transform (transform)
+import Verify.Check
 
 data CommandLine
     = VerifyModel

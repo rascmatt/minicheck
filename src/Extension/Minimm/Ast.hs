@@ -1,4 +1,4 @@
-module Lib.Extension.Minimm.Ast where
+module Extension.Minimm.Ast where
 
 type Variable = String
 

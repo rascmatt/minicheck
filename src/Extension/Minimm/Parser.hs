@@ -1,7 +1,7 @@
-module Lib.Extension.Minimm.Parser where
+module Extension.Minimm.Parser where
 
-import Lib.Extension.Minimm.Ast
-import Lib.Parser.Base
+import Extension.Minimm.Ast
+import Parser.Base
 
 import Data.Char (isDigit, isLower)
 

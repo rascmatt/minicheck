@@ -1,4 +1,4 @@
-module Lib.Model.TS (TS(..), State(..), Action(..), Transition(..), Proposition(..), Label(..), toDot) where
+module Model.TS (TS(..), State(..), Action(..), Transition(..), Proposition(..), Label(..), toDot) where
 import Data.List (intercalate)
 
 newtype State = State {

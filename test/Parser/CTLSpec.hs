@@ -2,10 +2,10 @@ module Parser.CTLSpec (spec) where
 
 import Test.Hspec
 
-import Lib.Parser.Base (topLevel)
-import Lib.Parser.CTL
-import Lib.Model.CTL
-import Lib.Model.TS (Proposition(..))
+import Parser.Base (topLevel)
+import Parser.CTL
+import Model.CTL
+import Model.TS (Proposition(..))
 
 spec :: Spec
 spec = do

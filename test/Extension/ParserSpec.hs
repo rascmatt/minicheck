@@ -2,9 +2,9 @@ module Extension.ParserSpec (spec) where
 
 import Test.Hspec
 
-import Lib.Extension.Minimm.Parser
-import Lib.Extension.Minimm.Ast
-import Lib.Parser.Base (topLevel)
+import Extension.Minimm.Parser
+import Extension.Minimm.Ast
+import Parser.Base (topLevel)
 
 spec :: Spec
 spec = do

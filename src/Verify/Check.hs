@@ -1,8 +1,8 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-module Lib.Verify.Check (verify) where
+module Verify.Check (verify) where
 
-import Lib.Model.CTL (CTL(..), LogicalOperator(..), PathFormula(..))
-import Lib.Model.TS (TS, State, states, labels, state, prop, lProp, trans, from, to, initial)
+import Model.CTL (CTL(..), LogicalOperator(..), PathFormula(..))
+import Model.TS (TS, State, states, labels, state, prop, lProp, trans, from, to, initial)
 import Data.List (nub, (\\))
 
 data ENF -- Existential Normal Form
