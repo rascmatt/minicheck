@@ -26,18 +26,53 @@ alias minicheck=$(cabal list-bin minicheck)
 
 Now you can run it like this:
 ```bash
-minicheck --ts=data/soda.txt
+minicheck data/soda.txt formulas/f1.ctl
 ```
 
 ## 🏃 Running
 
 Basic usage:
+
 ```bash
-minicheck --ts=<file> [--help]
+minicheck [OPTIONS] MODEL FORMULA [FORMULA ...]
 ```
 
-* `--ts=<file>`: Path to the transition system file
-* `--help`: Show usage information and exit
+### Arguments
+
+* `MODEL`: Path to the model file (either a `.mini` program or a raw transition system)
+* `FORMULA [FORMULA ...]`: One or more files containing CTL formulas
+
+### Common Options
+
+* `--only-syntax`: Validate only the syntax of the model and formulas, then exit
+* `--debug`: Print the parsed transition system and formulas before verification
+* `--dot`: Print the transition system in DOT graph format instead of plain text
+* `--extensions`: Show supported language extensions and exit
+* `--help`: Show help text
+
+### Example
+
+```bash
+minicheck examples/soda.txt formulas/f1.ctl
+```
+
+You can also verify a MINI source program:
+
+```bash
+minicheck examples/voting.mini formulas/termination.ctl
+```
+
+With debug output:
+
+```bash
+minicheck --debug --dot examples/soda.txt formulas/f1.ctl
+```
+
+You may also pass a CTL formula directly as a string instead of a file:
+
+```bash
+minicheck examples/soda.txt "EF (p && q)"
+```
 
 ---
 
