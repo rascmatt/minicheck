@@ -1,4 +1,35 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
+
+{-|
+Module      : Verify.Check
+Description : CTL Model Checking for Transition Systems
+
+This module implements a model checker for CTL (Computation Tree Logic) formulas
+over transition systems, using Existential Normal Form (ENF) as an intermediate
+representation. The primary entry point is the 'verify' function, which checks
+whether a given CTL formula holds in all initial states of a transition system.
+
+The module includes:
+
+- A definition of the 'ENF' data type representing formulas in Existential Normal Form.
+- A transformation from arbitrary CTL formulas to ENF via 'toENF'.
+- A fixpoint-based satisfaction function 'satFun' that computes the set of states
+  satisfying a given ENF formula.
+- Helpers for evaluating temporal operators like "globally" and "until".
+
+This implementation follows the standard semantics for existential CTL operators,
+and translates universal ones via dualities.
+
+== Example
+
+Assuming a transition system `ts` and a CTL formula `ctl`:
+
+@
+verify ts ctl  -- returns True if the formula holds in all initial states
+@
+
+-}
+
 module Verify.Check (verify) where
 
 import Model.CTL (CTL(..), LogicalOperator(..), PathFormula(..))
@@ -36,6 +67,28 @@ toENF (ForAll (Globally x)) = toENF $ Negation (Exists (Eventually (Negation x))
 
 -- TODO: Assert that all propositions in CTL are also in TS
 
+-- | Check whether a CTL formula holds for all initial states of a transition system.
+--
+-- Given a transition system and a CTL formula, this function evaluates whether
+-- the formula is satisfied in all of the system's initial states.
+--
+-- === Parameters
+--
+-- * @ts@ - The 'TS' transition system to evaluate the formula against.
+--         It defines the states, transitions, initial states, and proposition labeling.
+--
+-- * @ctl@ - The 'CTL' (Computation Tree Logic) formula to verify.
+--          It is automatically converted to ENF (Existential Normal Form) before evaluation.
+--
+-- === Returns
+--
+-- Returns 'True' if the CTL formula holds in all initial states of the transition system.
+-- Returns 'False' otherwise.
+--
+-- === Example
+--
+-- > verify myTransitionSystem (EX (Prop "p"))
+--
 verify :: TS -> CTL -> Bool
 verify ts ctl = ia `subset` satSet
   where

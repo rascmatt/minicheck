@@ -1,6 +1,14 @@
 {-# LANGUAGE InstanceSigs #-}
 {-# OPTIONS_GHC -Wno-missing-export-lists #-}
 
+{-|
+Module      : Parser.Base
+Description : A minimal monadic parser combinator library
+
+This module provides the foundation for building parsers using monadic combinators.
+
+-}
+
 module Parser.Base where
 
 -- Monad Parser Base

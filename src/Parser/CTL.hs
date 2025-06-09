@@ -1,3 +1,12 @@
+{-|
+Module      : Parser.CTL
+Description : Parser for Computation Tree Logic (CTL) formulas
+
+Parses CTL formulas from strings into their abstract syntax tree representation
+defined in 'Model.CTL'. Supports standard logical and temporal CTL operators,
+including nested and associative expressions.
+-}
+
 module Parser.CTL (parse, ctlFormula) where
 
 import Parser.Base
@@ -5,9 +14,12 @@ import Model.CTL
 import Data.Char (isLower, isDigit)
 -- import Control.Monad (mfilter)
 
+-- | Parse a full CTL formula from a string.
+-- Returns 'Just CTL' on success, or 'Nothing' if parsing fails.
 parse :: String -> Maybe CTL
 parse = topLevel ctlFormula
 
+-- | Entry point for parsing a CTL formula using the 'Parse' monad.
 ctlFormula :: Parse CTL
 ctlFormula = space >> stateFormula
 

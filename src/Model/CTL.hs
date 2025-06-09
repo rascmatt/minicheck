@@ -1,5 +1,14 @@
+{-|
+Module      : Model.CTL
+Description : Abstract syntax tree for Computation Tree Logic (CTL)
+
+Defines the core data types for representing CTL formulas, including
+logical operators, temporal path operators, and quantifiers over computation paths.
+-}
+
 module Model.CTL where
 
+-- | CTL formula representation.
 data CTL
   = Truth
   | Falsity
@@ -10,6 +19,7 @@ data CTL
   | ForAll PathFormula
   deriving (Show, Eq)
 
+-- | Logical binary operators.
 data LogicalOperator
   = Conjunction
   | Disjunction
@@ -18,6 +28,7 @@ data LogicalOperator
   | ExclusiveDisjunction
   deriving (Show, Eq)
 
+-- | CTL path formulas.
 data PathFormula
   = Next CTL
   | Until CTL CTL

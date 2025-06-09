@@ -1,29 +1,55 @@
+{-|
+Module      : Model.TS
+Description : Core data types for representing labeled transition systems (TS)
+
+This module defines the core types used to represent labeled transition systems for CTL model checking.
+A transition system consists of states, transitions between them via actions, a set of initial states,
+and a labeling of states with propositions that hold in them.
+
+It also includes utilities for pretty-printing and exporting a TS to [Graphviz DOT format](https://graphviz.org/doc/info/lang.html).
+-}
+
 module Model.TS (TS(..), State(..), Action(..), Transition(..), Proposition(..), Label(..), toDot) where
 import Data.List (intercalate)
 
+-- | A state in a transition system.
 newtype State = State {
     name :: String
 } deriving (Show, Eq, Ord)
 
+-- | An action labeling a transition.
 newtype Action = Act {
     action :: String
 } deriving (Show, Eq, Ord)
 
+-- | A transition between two states under a specific action.
 data Transition = Trans {
     from    :: State,
     through :: Action,
     to      :: State
 } deriving (Show, Eq, Ord)
 
+-- | A named atomic proposition.
 newtype Proposition = Prop {
     prop :: String
 } deriving (Show, Eq, Ord)
 
+-- | Associates a proposition with a state, representing that the proposition holds in that state.
 data Label = Label {
     state :: State,
     lProp :: Proposition
 } deriving (Show, Eq, Ord)
 
+-- | A labeled transition system (TS).
+--
+-- It consists of:
+--
+-- * a list of all states
+-- * the actions that may occur
+-- * a list of transitions
+-- * the initial states
+-- * the propositions defined in the system
+-- * the labels connecting states to propositions
 data TS = TS {
     states  :: [State],
     actions :: [Action],
@@ -57,7 +83,15 @@ instance Show TS where
             pPr (Prop pr) = pr
             pLb lbl = "(" ++ name (state lbl) ++ ", " ++ pPr (lProp lbl) ++ ")"
 
-
+-- | Converts a transition system to a Graphviz DOT-format string.
+--
+-- This allows visualization of the TS using tools like Graphviz.
+-- Initial states are marked with incoming arrows from invisible points.
+-- State labels include proposition names.
+--
+-- Example usage:
+--
+-- > putStrLn $ toDot myTS
 toDot :: TS -> String
 toDot (TS st _ tsList initStates _ lbls) =
     "digraph TS {\n" ++

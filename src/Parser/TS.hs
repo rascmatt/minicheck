@@ -1,3 +1,25 @@
+{-|
+Module      : Parser.TS
+Description : Parser for textual representations of labeled transition systems (TS)
+
+This module defines a parser for labeled transition systems (TS) used in CTL model checking.
+
+It supports a relaxed syntax with optional section headers (e.g. @states:@, @transitions:@),
+and bracketed lists of elements. The parser automatically normalizes the resulting
+transition system by deduplicating elements, ensuring at least self-loops for terminal states,
+and adding the state's own name as a label.
+
+The module also includes semantic validation of the transition system, checking for:
+
+- presence of initial states
+- validity of state references in transitions and labels
+- validity of action and proposition usage
+
+Use 'parse' to read a TS from a string, which will automatically 'normalize' to ensure a well-formed TS.
+
+This module is intended to work with `Model.TS` and integrates with the CTL model checking backend.
+-}
+
 module Parser.TS where
 
 import Parser.Base
@@ -94,6 +116,9 @@ mTS = do
     l <- mElemList mLabel
     return (TS s a t i p l)
 
+-- | Parse a transition system from a string.
+-- Accepts optional section headers and relaxed formatting.
+-- Returns a normalized transition system if successful.
 parse :: String -> Maybe TS
 parse input = normalize <$> topLevel mTS input
 
@@ -126,7 +151,10 @@ deduplicateTs :: TS -> TS
 deduplicateTs (TS st a ts i p l)
     = TS (dedup st) (dedup a) (dedup ts) (dedup i) (dedup p) (dedup l)
 
--- Apply all transformations
+-- | Normalize a transition system by:
+-- * Deduplicating all sets (states, actions, etc.)
+-- * Ensuring each state has at least one outgoing transition (self-loop if necessary)
+-- * Adding each state name as an atomic proposition label for itself
 normalize :: TS -> TS
 normalize = addSinkStates . normLabels . deduplicateTs
 
@@ -160,6 +188,14 @@ validateProps (TS _ _ _ _ ps ls) = not (any (`notElem` ps) refs)
     where
         refs = [ p | (Label _ p) <- ls]
 
--- Apply all validations
+-- | Validate the semantic correctness of a transition system.
+-- The system is considered valid if all of the following conditions hold:
+--
+-- * At least one initial state is defined.
+-- * All referenced states in transitions, labels, and initial states are declared.
+-- * All actions used in transitions are declared.
+-- * All propositions used in labels are declared.
+--
+-- Returns 'True' if the system passes all validations; otherwise, 'False'.
 validate :: TS -> Bool
 validate ts = all (\p -> p ts) [validateInitial, validateStates, validateActions, validateProps]
