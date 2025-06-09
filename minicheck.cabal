@@ -36,7 +36,7 @@ test-suite minicheck-test
   other-modules:    Lib.Parser.Base,Lib.Parser.TS,Lib.Parser.CTL,Lib.Model.TS,
                     Lib.Model.CTL,Lib.Verify.Check,
                     Lib.Extension.Minimm.Ast,Lib.Extension.Minimm.Parser,Lib.Extension.Minimm.Transform,
-                    Parser.CTLSpec,Parser.TSSpec,Extension.ParserSpec
+                    Parser.CTLSpec,Parser.TSSpec,Extension.ParserSpec,Extension.TransformSpec
   build-depends:    base ^>=4.17,
                     containers ^>=0.6.7,
                     hspec ^>=2.11,

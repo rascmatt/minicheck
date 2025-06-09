@@ -10,9 +10,9 @@ newtype Action = Act {
 } deriving (Show, Eq, Ord)
 
 data Transition = Trans {
-    from :: State,
-    when :: Action,
-    to   :: State
+    from    :: State,
+    through :: Action,
+    to      :: State
 } deriving (Show, Eq, Ord)
 
 newtype Proposition = Prop {
