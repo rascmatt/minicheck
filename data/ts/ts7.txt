@@ -1,0 +1,18 @@
+states: 
+    [a, b]
+actions: 
+    [_]
+transitions: [
+    (a, _, b),
+    (b, _, b)
+]
+initial: 
+    [a]
+props: 
+    [p, q, r]
+lables: [
+    (a, p),
+    (a, r),
+    (b, p),
+    (b, q)
+]

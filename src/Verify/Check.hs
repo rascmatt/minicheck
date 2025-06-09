@@ -30,7 +30,7 @@ verify ts ctl  -- returns True if the formula holds in all initial states
 
 -}
 
-module Verify.Check (verify) where
+module Verify.Check (verify, toENF, ENF(..)) where
 
 import Model.CTL (CTL(..), LogicalOperator(..), PathFormula(..))
 import Model.TS (TS, State, states, labels, state, prop, lProp, trans, from, to, initial)
