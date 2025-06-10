@@ -50,7 +50,7 @@ commandLine =
             <>  help "Print the transition system as DOT Graph"
             )
         <*> argument str (metavar "MODEL" <> action "file")
-        <*> some (argument str (metavar "FORMULAS" <> action "file"))
+        <*> many (argument str (metavar "FORMULAS" <> action "file"))
 
 type ErrorMessage = String
 type ValidationError = (FilePath, ErrorMessage)
@@ -162,13 +162,18 @@ main' (VerifyModel onlyCheckSyntax debugMode dotFormat modelFilepath formulaFile
         putStrLn "Transition System:"
         putStrLn (if dotFormat then toDot ts else show ts)
         putStrLn "-----------------------"
-        putStrLn "Formulas:"
-        forM_ formulas $ \(origin, f) -> do
-            putStrLn $ origin ++ ": " ++ show f
-        putStrLn "-----------------------"
+        unless (null formulas) $ do
+            putStrLn "Formulas:"
+            forM_ formulas $ \(origin, f) -> do
+                putStrLn $ origin ++ ": " ++ show f
+            putStrLn "-----------------------"
 
-    when onlyCheckSyntax
+    when onlyCheckSyntax $ do
+        putStrLn "Syntax check successful"
         exitSuccess
+
+    when (null formulas) $ do
+        hPutStrLn stderr "No input formula specified" >> exitWith (ExitFailure 2)
 
     let verification = map (second (\ctl -> if verify ts ctl then "OK" else "FAIL")) formulas
     printPadded stdout verification
