@@ -35,6 +35,8 @@ module Verify.Check (verify, toENF, ENF(..)) where
 import Model.CTL (CTL(..), LogicalOperator(..), PathFormula(..))
 import Model.TS (TS, State, states, labels, state, prop, lProp, trans, from, to, initial)
 import Data.List (nub, (\\))
+import Data.Set (Set, fromList, isSubsetOf, intersection, difference, union)
+import qualified Data.Set as Set (filter)
 
 data ENF -- Existential Normal Form
   = ETruth
@@ -88,72 +90,61 @@ toENF (ForAll (Globally x)) = toENF $ Negation (Exists (Eventually (Negation x))
 -- > verify myTransitionSystem (EX (Prop "p"))
 --
 verify :: TS -> CTL -> Bool
-verify ts ctl = ia `subset` satSet
+verify ts ctl = ia `isSubsetOf` satSet
   where
     satSet = satFun ts (toENF ctl)
-    ia     = initial ts
+    ia     = fromList $ initial ts
 
-satFun :: TS -> ENF -> [State]
+satFun :: TS -> ENF -> Set State
 
 -- Sat(true) := S
-satFun ts ETruth = states ts
+satFun ts ETruth = fromList $ states ts
 
 -- Sat(a) := { s ∈ S | a ∈ L(s) }, for any a ∈ AP
-satFun ts (EAtomicProposition p) = statesWithLabel ts p
-  where statesWithLabel t x = (nub . map state . filter (\l -> x == prop (lProp l))) (labels t)
+satFun ts (EAtomicProposition p) = fromList $ statesWithLabel ts p
+  where statesWithLabel t x = (map state . filter (\l -> x == prop (lProp l))) (labels t)
 
 -- Sat(ɸ && Ψ) := Sat(ɸ) ∩ Sat(Ψ)
-satFun ts (EConjunction a b) = satFun ts a `intersect` satFun ts b
+satFun ts (EConjunction a b) = satFun ts a `intersection` satFun ts b
 
 -- Sat(⌐ɸ) := S \ Sat(ɸ)
-satFun ts (ENegation p) = filter (`notElem` satFun ts p) (states ts)
+satFun ts (ENegation p) = fromList (states ts) `difference` satFun ts p
 
 -- Sat(∃X ɸ) := { s ∈ S | (Post(s) ∩ Sat(ɸ)) != ∅ }
-satFun ts (ENext p) = (nub . filter hasNext) (states ts)
+satFun ts (ENext p) = Set.filter hasNext (fromList $ states ts)
   where
     satP      = satFun ts p
-    hasNext s = (not . null) (post ts s `intersect` satP)
+    hasNext s = (not . null) (post ts s `intersection` satP)
 
 -- Sat(∃(ɸ 𝒰 Ψ))
 satFun ts (EUntil p q) = satFunUntil ts satP t
   where
-    t = satFun ts q
+    t    = satFun ts q
     satP = satFun ts p
 
 -- Sat(∃G ɸ)
 satFun ts (EGlobally p) = satFunGlobally ts t
   where t = satFun ts p
 
-satFunGlobally :: TS -> [State] -> [State]
+satFunGlobally :: TS -> Set State -> Set State
 satFunGlobally ts t
   | null del  = t
   | otherwise = satFunGlobally ts newT
     where
-      del = [s | s <- t, null (post ts s `intersect` t)]
-      newT = t `diff` del
+      del  = Set.filter (\s -> null (post ts s `intersection` t)) t
+      newT = t `difference` del
 
-satFunUntil :: TS -> [State] -> [State] -> [State]
+satFunUntil :: TS -> Set State -> Set State -> Set State
 satFunUntil ts satP t
   | null add  = t
   | otherwise = satFunUntil ts satP newT
     where
-      add = [ s | s <- satP `diff` t, (not . null) (post ts s `intersect` t)]
+      add  = Set.filter (\s -> (not . null) (post ts s `intersection` t)) satP `difference` t
       newT = t `union` add
 
 -- Utility functions
 
-post :: TS -> State -> [State]
-post ts s = (map to . filter (\t -> from t == s)) (trans ts)
+post :: TS -> State -> Set State
+post ts s = fromList $ (map to . filter (\t -> from t == s)) (trans ts)
 
-intersect :: (Eq a) => [a] -> [a] -> [a]
-intersect xs ys = filter (`elem` ys) xs
-
-union :: (Eq a) => [a] -> [a] -> [a]
-union xs ys = nub (xs ++ ys)
-
-diff :: (Eq a) => [a] -> [a] -> [a]
-diff xs ys = xs \\ ys
-
-subset :: (Eq a) => [a] -> [a] -> Bool
-subset xs ys = all (`elem` ys) xs
 
