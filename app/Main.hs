@@ -99,7 +99,7 @@ validateCTL :: TS -> (FilePath, CTL) -> ValidateT [ValidationError] IO (FilePath
 validateCTL ts (fp, ctl) = do
     let cp = ctlProps ctl
     let tp = map prop (props ts)
-    let diff = filter (`notElem` tp) cp
+    let diff = filter (\pattern -> and [not (pattern `match` q) | q <- tp]) cp
     if (not . null) diff then
         if length diff == 1 then
             refute [(fp, "Atomic proposition \"" ++ head diff ++ "\" does not occur in the transition system.")]
