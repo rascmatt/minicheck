@@ -13,10 +13,10 @@ import Data.List (isSuffixOf)
 import qualified Parser.TS as TSParser
 import qualified Parser.CTL as CTLParser
 import qualified Extension.Minimm.Parser as MiniParser
-import Model.TS (TS, toDot)
-import Model.CTL (CTL)
+import Model.CTL (CTL(..), PathFormula(..))
 import Extension.Minimm.Transform (transform)
 import Verify.Check
+import Model.TS (TS(props), Proposition (prop), toDot)
 
 data CommandLine
     = VerifyModel
@@ -95,6 +95,33 @@ readCTL filepath = do
                 Just ctl -> return (filepath, ctl)
                 Nothing  -> refute [(filepath, "syntax error")]
 
+validateCTL :: TS -> (FilePath, CTL) -> ValidateT [ValidationError] IO (FilePath, CTL)
+validateCTL ts (fp, ctl) = do
+    let cp = ctlProps ctl
+    let tp = map prop (props ts)
+    let diff = filter (`notElem` tp) cp
+    if (not . null) diff then
+        if length diff == 1 then
+            refute [(fp, "Atomic proposition \"" ++ head diff ++ "\" does not occur in the transition system.")]
+        else
+            refute [(fp, "Atomic propositions " ++ show diff ++ " do not occur in the transition system.")]
+    else
+        return (fp, ctl)
+
+ctlProps :: CTL -> [String]
+ctlProps (AtomicProposition p) = [p]
+ctlProps (BinaryOperation _ a b) = ctlProps a ++ ctlProps b
+ctlProps (Negation a) = ctlProps a
+ctlProps (Exists a) = ctlPropsPath a
+ctlProps (ForAll a) = ctlPropsPath a
+ctlProps _ = []
+
+ctlPropsPath :: PathFormula -> [String]
+ctlPropsPath (Next n) = ctlProps n
+ctlPropsPath (Until p u) = ctlProps p ++ ctlProps u
+ctlPropsPath (Eventually e) = ctlProps e
+ctlPropsPath (Globally g) = ctlProps g
+
 printPadded :: Handle -> [(String, String)] -> IO ()
 printPadded handle rows =
     let
@@ -119,9 +146,16 @@ main' PrintExtensions = do
     putStrLn "MINI Language Support"
 main' (VerifyModel onlyCheckSyntax debugMode dotFormat modelFilepath formulaFilepaths) = do
     result <- runValidateT $ liftA2 (,) (readModel modelFilepath) (forM formulaFilepaths readCTL)
+
     (ts, formulas) <- case result of
+        -- Report any IO or syntax errors and exit
         Left  err -> printPadded stderr err >> exitWith (ExitFailure 2)
-        Right val -> return val
+        Right (ts, cs) -> do
+            -- Semantic validation of the formulas against the transition system
+            val <- runValidateT $ forM cs (validateCTL ts)
+            case val of
+                Left  err  -> printPadded stderr err >> exitWith (ExitFailure 2)
+                Right ctls -> return (ts, ctls)
 
     when debugMode $ do
         putStrLn "-----------------------"

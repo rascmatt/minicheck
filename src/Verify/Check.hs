@@ -65,8 +65,6 @@ toENF (ForAll (Until x y)) = ENegation (EConjunction (EUntil (ENegation $ toENF 
 toENF (ForAll (Eventually x)) = ENegation (EGlobally (ENegation $ toENF x))
 toENF (ForAll (Globally x)) = toENF $ Negation (Exists (Eventually (Negation x)))
 
--- TODO: Assert that all propositions in CTL are also in TS
-
 -- | Check whether a CTL formula holds for all initial states of a transition system.
 --
 -- Given a transition system and a CTL formula, this function evaluates whether
