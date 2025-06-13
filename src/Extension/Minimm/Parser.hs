@@ -9,6 +9,7 @@ module Extension.Minimm.Parser where
 
 import Extension.Minimm.Ast
 import Parser.Base
+import Control.Monad (mplus, mzero)
 
 import Data.Char (isDigit, isLower)
 

@@ -5,7 +5,7 @@ import Test.Hspec
 import Extension.Minimm.Parser (mProgram)
 import Extension.Minimm.Ast
 import Extension.Minimm.Transform
-import Parser.Base (Parse(..), topLevel, unbox)
+import Parser.Base (Parse(..), topLevel)
 import Model.TS (TS (..), State(..), Transition(..), Label (..), Proposition (..))
 import Control.Monad (when, unless)
 
@@ -124,9 +124,7 @@ hasLabels ts (l:lbs) = do
     hasLabel  ts l
     hasLabels ts lbs
 
-
 parse :: String -> TS
-parse input = case results of
-        []         -> error "syntax error"
-        (result:_) -> transform result
-    where results = [ found | (found, []) <- unbox mProgram input]
+parse input = case topLevel mProgram input of
+    Nothing -> error "syntax error"
+    Just ts -> transform ts

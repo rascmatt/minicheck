@@ -10,43 +10,31 @@ This module provides the foundation for building parsers using monadic combinato
 -}
 module Parser.Base where
 
+import Control.Monad
+import Control.Applicative
+
 -- Monad Parser Base
 
 newtype Parse a = Parse (String -> [(a, String)])
 
 instance Functor Parse where
-  fmap :: (a -> b) -> Parse a -> Parse b
-  fmap f (Parse x) = Parse (\cs -> [ (f a, cs') | (a, cs') <- x cs ])
+  fmap f (Parse p) = Parse (\s -> [(f a, rest) | (a, rest) <- p s])
 
 instance Applicative Parse where
-
-    -- succeed
-    pure :: a -> Parse a
-    pure a = Parse (\cs -> [(a, cs)])
-
-    (<*>) :: Parse (a -> b) -> Parse a -> Parse b
-    p1 <*> p2 = do {x1 <- p1; x2 <- p2; return (x1 x2)}
+  pure a = Parse (\s -> [(a, s)])
+  (Parse pf) <*> (Parse pa) = Parse (\s -> [(f a, rest2) | (f, rest1) <- pf s, (a, rest2) <- pa rest1])
 
 instance Monad Parse where
-    -- >*>
-    p >>= f = Parse (\cs -> concat [unbox (f a) cs' | (a, cs') <- unbox p cs])
+  return = pure
+  (Parse p) >>= f = Parse (\s -> concat [let (Parse p') = f a in p' rest | (a, rest) <- p s])
 
-unbox :: Parse a -> (String -> [(a, String)])
-unbox (Parse p) = p
-
--- TODO
-class Monad m => MonadPlus m where
-    mzero :: m a
-    mplus :: m a -> m a -> m a
+instance Alternative Parse where
+  empty = Parse (const [])
+  (Parse p1) <|> (Parse p2) = Parse (\s -> p1 s ++ p2 s)
 
 instance MonadPlus Parse where
-  -- none
-  mzero :: Parse a
-  mzero = Parse (const [])
-  -- alt
-  mplus :: Parse a -> Parse a -> Parse a
-  mplus (Parse p1) (Parse p2) = Parse (\cs -> p1 cs ++ p2 cs)
-
+  mzero = empty
+  mplus = (<|>)
 
 -- Universal Parser Basis --
 
@@ -78,15 +66,15 @@ sat p = do
     if p c then return c else mzero
 
 (+++) :: Parse a -> Parse a -> Parse a
-p +++ q = Parse (\cs -> case unbox (p `mplus` q) cs of
+p +++ q = Parse (\cs -> let Parse p' = (p `mplus` q) in case p' cs of
     [] -> []
     (x:_) -> [x])
 
-many :: Parse a -> Parse [a]
-many p = many1 p +++ return []
+greedyMany :: Parse a -> Parse [a]
+greedyMany p = greedyMany1 p +++ return []
 
-many1 :: Parse a -> Parse [a]
-many1 p = do a <- p; as <- many p; return (a:as)
+greedyMany1 :: Parse a -> Parse [a]
+greedyMany1 p = do a <- p; as <- greedyMany p; return (a:as)
 
 sepby :: Parse a -> Parse b -> Parse [a]
 p `sepby` sep = (p `sepby1` sep) +++ return []
@@ -94,11 +82,11 @@ p `sepby` sep = (p `sepby1` sep) +++ return []
 sepby1 :: Parse a -> Parse b -> Parse [a]
 p `sepby1` sep = do
     a <- p
-    as <- many (sep >> p)
+    as <- greedyMany (sep >> p)
     return (a:as)
 
 space :: Parse String
-space = many (sat isWs)
+space = greedyMany (sat isWs)
 
 token :: Parse a -> Parse a
 token p = do {a <- p; space; return a}

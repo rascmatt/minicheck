@@ -13,6 +13,7 @@ module Parser.CTL (parse, ctlFormula) where
 import Model.Pattern
 import Parser.Base
 import Model.CTL
+import Control.Monad (mplus, mfilter)
 import Data.Char (isLower, isDigit)
 
 -- | Parse a full CTL formula from a string.
@@ -49,7 +50,7 @@ pathFormula = do
 
 proposition :: Parse CTL
 proposition = do
-    prop <- token $ many1 $ sat allowedChar
+    prop <- token $ greedyMany1 $ sat allowedChar
     return $ AtomicProposition $ makePattern prop
   where
     allowedChar c = isLower c || isDigit c || elem c ['_', '.', '-', '*', '#']
@@ -67,7 +68,3 @@ associativeOperation = do
         `mplus` (Disjunction <$ symbol "||")
         `mplus` (Equivalence <$ symbol "==")
         `mplus` (ExclusiveDisjunction <$ symbol "!=")
-
-    -- TODO
-    mfilter :: (a -> Bool) -> Parse a -> Parse a
-    mfilter f m = do {x <- m; if f x then return x else mzero}

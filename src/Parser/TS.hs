@@ -26,6 +26,7 @@ import Parser.Base
 import Model.TS
 import Data.Char (isLower, isDigit)
 import Data.Set (toList, fromList)
+import Control.Monad (mplus, mzero)
 
 mIdent :: Parse String
 mIdent = (neList . sat) (\c -> isLower c || isDigit c || elem c ['_', '.', '-'])
