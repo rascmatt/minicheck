@@ -148,17 +148,15 @@ main' PrintExtensions = do
     putStrLn "Proposition Patterns"
     putStrLn "Transition System DOT Visualization"
 main' (VerifyModel onlyCheckSyntax debugMode dotFormat modelFilepath formulaFilepaths) = do
-    result <- runValidateT $ liftA2 (,) (readModel modelFilepath) (forM formulaFilepaths readCTL)
+    validationResult <- runValidateT $ do
+        (ts, formulas) <- liftA2 (,) (readModel modelFilepath) (forM formulaFilepaths readCTL)
+        forM_ formulas (validateCTL ts) -- Semantic validation of the formulas against the transition system.
+        return (ts, formulas)
 
-    (ts, formulas) <- case result of
-        -- Report any IO or syntax errors and exit
-        Left  err -> printPadded stderr err >> exitWith (ExitFailure 2)
-        Right (ts, cs) -> do
-            -- Semantic validation of the formulas against the transition system
-            val <- runValidateT $ forM cs (validateCTL ts)
-            case val of
-                Left  err  -> printPadded stderr err >> exitWith (ExitFailure 2)
-                Right ctls -> return (ts, ctls)
+    (ts, formulas) <- case validationResult of
+        -- Report any IO, syntax or semantic errors and exit.
+        Left  err   -> printPadded stderr err >> exitWith (ExitFailure 2)
+        Right valid -> return valid
 
     when debugMode $ do
         putStrLn "-----------------------"
