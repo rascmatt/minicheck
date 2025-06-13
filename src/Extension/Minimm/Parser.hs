@@ -182,6 +182,7 @@ mProgram = do
     s <- mStatements
     r <- mReturnStatement
     _ <- (skipWs . sat) (== '}')
+    _ <- space
     return (Prog a (s++[r]))
 
 -- | Entry point for parsing a full MiniMM program from a string.
