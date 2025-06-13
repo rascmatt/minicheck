@@ -8,11 +8,13 @@ logical operators, temporal path operators, and quantifiers over computation pat
 
 module Model.CTL where
 
+import Model.Pattern
+
 -- | CTL formula representation.
 data CTL
   = Truth
   | Falsity
-  | AtomicProposition String
+  | AtomicProposition Pattern
   | BinaryOperation LogicalOperator CTL CTL
   | Negation CTL
   | Exists PathFormula

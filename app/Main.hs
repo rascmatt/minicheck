@@ -17,6 +17,7 @@ import Model.CTL (CTL(..), PathFormula(..))
 import Extension.Minimm.Transform (transform)
 import Verify.Check
 import Model.TS (TS(props), Proposition (prop), toDot)
+import Model.Pattern (Pattern, matchesPattern)
 
 data CommandLine
     = VerifyModel
@@ -99,16 +100,16 @@ validateCTL :: TS -> (FilePath, CTL) -> ValidateT [ValidationError] IO (FilePath
 validateCTL ts (fp, ctl) = do
     let cp = ctlProps ctl
     let tp = map prop (props ts)
-    let diff = filter (\pattern -> and [not (pattern `match` q) | q <- tp]) cp
+    let diff = filter (\pattern -> not $ any (matchesPattern pattern) tp) cp
     if (not . null) diff then
         if length diff == 1 then
-            refute [(fp, "Atomic proposition \"" ++ head diff ++ "\" does not occur in the transition system.")]
+            refute [(fp, "Atomic proposition \"" ++ show (head diff) ++ "\" does not occur in the transition system.")]
         else
             refute [(fp, "Atomic propositions " ++ show diff ++ " do not occur in the transition system.")]
     else
         return (fp, ctl)
 
-ctlProps :: CTL -> [String]
+ctlProps :: CTL -> [Pattern]
 ctlProps (AtomicProposition p) = [p]
 ctlProps (BinaryOperation _ a b) = ctlProps a ++ ctlProps b
 ctlProps (Negation a) = ctlProps a
@@ -116,7 +117,7 @@ ctlProps (Exists a) = ctlPropsPath a
 ctlProps (ForAll a) = ctlPropsPath a
 ctlProps _ = []
 
-ctlPropsPath :: PathFormula -> [String]
+ctlPropsPath :: PathFormula -> [Pattern]
 ctlPropsPath (Next n) = ctlProps n
 ctlPropsPath (Until p u) = ctlProps p ++ ctlProps u
 ctlPropsPath (Eventually e) = ctlProps e
@@ -144,6 +145,8 @@ main = execParser opts >>= main'
 main' :: CommandLine -> IO ()
 main' PrintExtensions = do
     putStrLn "MINI Language Support"
+    putStrLn "Proposition Patterns"
+    putStrLn "Transition System DOT Visualization"
 main' (VerifyModel onlyCheckSyntax debugMode dotFormat modelFilepath formulaFilepaths) = do
     result <- runValidateT $ liftA2 (,) (readModel modelFilepath) (forM formulaFilepaths readCTL)
 

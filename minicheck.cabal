@@ -15,16 +15,20 @@ build-type:         Simple
 common warnings
     ghc-options: -Wall
 
+common extensions
+  default-extensions: OverloadedStrings, InstanceSigs
+
 library
+  import:           warnings, extensions
   hs-source-dirs:   src
   exposed-modules:  Parser.Base,Parser.TS,Parser.CTL,Model.TS,
-                    Model.CTL,Verify.Check,
+                    Model.CTL,Model.Pattern,Verify.Check,
                     Extension.Minimm.Ast,Extension.Minimm.Parser,Extension.Minimm.Transform
   build-depends:    base ^>=4.17,containers ^>=0.6.7,split ^>=0.2.5
   default-language: Haskell2010
 
 executable minicheck
-    import:           warnings
+    import:           warnings, extensions
     main-is:          Main.hs
     build-depends:    base ^>=4.17,
                       minicheck,
@@ -46,4 +50,5 @@ test-suite minicheck-test
                     hspec ^>=2.11,
   hs-source-dirs:   test
   default-language: Haskell2010
+  default-extensions: OverloadedStrings
   build-tool-depends: hspec-discover:hspec-discover == 2.*

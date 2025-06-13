@@ -29,19 +29,17 @@ verify ts ctl  -- returns True if the formula holds in all initial states
 @
 
 -}
+module Verify.Check (verify, toENF, ENF(..)) where
 
-module Verify.Check (verify, toENF, ENF(..), match) where
-
+import Model.Pattern
 import Model.CTL (CTL(..), LogicalOperator(..), PathFormula(..))
 import Model.TS (TS, State, states, labels, state, prop, lProp, trans, from, to, initial)
-import Data.List (nub, (\\))
-import Data.List.Split (splitOn)
 import Data.Set (Set, fromList, isSubsetOf, intersection, difference, union)
 import qualified Data.Set as Set (filter)
 
 data ENF -- Existential Normal Form
   = ETruth
-  | EAtomicProposition String
+  | EAtomicProposition Pattern
   | EConjunction ENF ENF
   | ENegation ENF
   | ENext ENF
@@ -102,8 +100,8 @@ satFun :: TS -> ENF -> Set State
 satFun ts ETruth = fromList $ states ts
 
 -- Sat(a) := { s ∈ S | a ∈ L(s) }, for any a ∈ AP
-satFun ts (EAtomicProposition p) = fromList $ statesWithLabel ts p
-  where statesWithLabel t x = (map state . filter (match x . prop . lProp)) (labels t)
+satFun ts (EAtomicProposition pattern) = fromList statesWithLabel
+  where statesWithLabel = map state $ filter (matchesPattern pattern . prop . lProp) $ labels ts
 
 -- Sat(ɸ && Ψ) := Sat(ɸ) ∩ Sat(Ψ)
 satFun ts (EConjunction a b) = satFun ts a `intersection` satFun ts b
@@ -147,23 +145,3 @@ satFunUntil ts satP t
 
 post :: TS -> State -> Set State
 post ts s = fromList $ (map to . filter (\t -> from t == s)) (trans ts)
-
--- | Check wether a pattern matches the proposition
-match :: String -> String -> Bool
-match pattern prop = matchInternal patternL propL
-    where
-      patternL = splitOn "." pattern
-      propL    = splitOn "." prop
-
-matchInternal :: [String] -> [String] -> Bool
-matchInternal [] [] = True
-matchInternal [] _  = False
-matchInternal _ []  = False
-matchInternal (pt:pts) (pr:prs)
-  | pt == "#" = matchInternal pts prs
-  | pt == "*" = or [ matchInternal pts (skip (pr:prs) i) | i <- [0..length prs + 1]]
-  | otherwise = pt == pr && matchInternal pts prs
-    where
-      skip ls 0 = ls
-      skip [] i = error "out of bounds"
-      skip (l:ls) i = skip ls (i-1)

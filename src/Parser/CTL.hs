@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unused-do-bind #-}
+
 {-|
 Module      : Parser.CTL
 Description : Parser for Computation Tree Logic (CTL) formulas
@@ -6,13 +8,12 @@ Parses CTL formulas from strings into their abstract syntax tree representation
 defined in 'Model.CTL'. Supports standard logical and temporal CTL operators,
 including nested and associative expressions.
 -}
-
 module Parser.CTL (parse, ctlFormula) where
 
+import Model.Pattern
 import Parser.Base
 import Model.CTL
 import Data.Char (isLower, isDigit)
--- import Control.Monad (mfilter)
 
 -- | Parse a full CTL formula from a string.
 -- Returns 'Just CTL' on success, or 'Nothing' if parsing fails.
@@ -47,7 +48,11 @@ pathFormula = do
     `mplus` (Eventually <$> (symbol "F" >> stateFormulaParen))
 
 proposition :: Parse CTL
-proposition = AtomicProposition <$> token mIdent
+proposition = do
+    prop <- token $ many1 $ sat allowedChar
+    return $ AtomicProposition $ makePattern prop
+  where
+    allowedChar c = isLower c || isDigit c || elem c ['_', '.', '-', '*', '#']
 
 associativeOperation :: Parse CTL
 associativeOperation = do
@@ -66,7 +71,3 @@ associativeOperation = do
     -- TODO
     mfilter :: (a -> Bool) -> Parse a -> Parse a
     mfilter f m = do {x <- m; if f x then return x else mzero}
-
--- TODO: Import from TS.hs ?
-mIdent :: Parse String
-mIdent = many1 $ sat (\c -> isLower c || isDigit c || elem c ['_', '.', '-', '*', '#'])

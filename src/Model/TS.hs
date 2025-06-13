@@ -78,7 +78,7 @@ instance Show TS where
         "labels: [\n" ++
         "  " ++ intercalate ",\n  " (map pLb l) ++ "\n]")
         where
-            pTr (Trans s1 a0 s2) 
+            pTr (Trans s1 a0 s2)
                 = "(" ++ name s1 ++ ", " ++ action a0 ++ ", " ++ name s2 ++ ")"
             pPr (Prop pr) = pr
             pLb lbl = "(" ++ name (state lbl) ++ ", " ++ pPr (lProp lbl) ++ ")"
@@ -104,9 +104,9 @@ toDot (TS st _ tsList initStates _ lbls) =
   where
     renderState :: State -> String
     renderState s =
-      let props = [prop p | Label s' p <- lbls, s' == s]
+      let properties = [prop p | Label s' p <- lbls, s' == s]
           labelText = name s ++
-                      if null props then "" else "\\n{" ++ intercalate ", " props ++ "}"
+                      if null properties then "" else "\\n{" ++ intercalate ", " properties ++ "}"
           baseAttrs = ["label=\"" ++ labelText ++ "\""]
           styleAttrs = if s `elem` initStates
                          then ["style=filled", "fillcolor=lightgray"]

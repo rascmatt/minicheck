@@ -1,5 +1,5 @@
-{-# LANGUAGE InstanceSigs #-}
 {-# OPTIONS_GHC -Wno-missing-export-lists #-}
+{-# OPTIONS_GHC -Wno-unused-do-bind #-}
 
 {-|
 Module      : Parser.Base
@@ -8,7 +8,6 @@ Description : A minimal monadic parser combinator library
 This module provides the foundation for building parsers using monadic combinators.
 
 -}
-
 module Parser.Base where
 
 -- Monad Parser Base
@@ -130,6 +129,9 @@ skipWs p = do
 
 isWs :: Char -> Bool
 isWs c = c `elem` [' ', '\t', '\n', '\r']
+
+parses :: Parse a -> String -> Bool
+parses (Parse p) input = not $ null [ found | (found, []) <- p input]
 
 topLevel :: Parse a -> String -> Maybe a
 topLevel (Parse p) input = case results of
