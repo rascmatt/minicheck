@@ -12,11 +12,14 @@ instance Show Pattern where
   show (Pattern _ s) = s
 
 instance Eq Pattern where
-  (Pattern _ ('*':s1)) == (Pattern _ ('*':s2)) = dropWhile (== '*') s1 == dropWhile (== '*') s2
-  (Pattern _ ('#':s1)) == (Pattern _ ('#':s2)) = dropWhile (== '#') s1 == dropWhile (== '#') s2
-  (Pattern _ (c1:s1))  == (Pattern _ (c2:s2))  = c1 == c2 && s1 == s2
-  (Pattern _ []) == (Pattern _ []) = True
-  _ == _ = False
+  (Pattern _ s1) == (Pattern _ s2) = eqPattern s1 s2
+
+eqPattern :: String -> String -> Bool
+eqPattern ('*':s1) ('*':s2) = dropWhile (== '*') s1 == dropWhile (== '*') s2
+eqPattern ('#':s1) ('#':s2) = dropWhile (== '#') s1 == dropWhile (== '#') s2
+eqPattern (c1 :s1) (c2 :s2) = c1 == c2 && eqPattern s1 s2
+eqPattern [] [] = True
+eqPattern _ _   = False
 
 instance IsString Pattern where
   fromString = makePattern
