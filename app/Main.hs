@@ -33,7 +33,7 @@ data CommandLine
 commandLine :: Parser CommandLine
 commandLine =
     PrintExtensions
-        <$ switch
+        <$ flag' ()
             (  long "extensions"
             <> help "Print supported extensions and exit"
             )
