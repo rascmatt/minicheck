@@ -69,4 +69,4 @@ associativeOperation = do
 
 -- TODO: Import from TS.hs ?
 mIdent :: Parse String
-mIdent = many1 $ sat (\c -> isLower c || isDigit c || elem c ['_', '.', '-'])
+mIdent = many1 $ sat (\c -> isLower c || isDigit c || elem c ['_', '.', '-', '*', '#'])
