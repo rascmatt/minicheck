@@ -158,16 +158,16 @@ main' (VerifyModel onlyCheckSyntax debugMode dotFormat modelFilepath formulaFile
         Left  err   -> printPadded stderr err >> exitWith (ExitFailure 2)
         Right valid -> return valid
 
-    when debugMode $ do
+    when (debugMode || dotFormat) $ do
         putStrLn "-----------------------"
         putStrLn "Transition System:"
         putStrLn (if dotFormat then toDot ts else show ts)
         putStrLn "-----------------------"
-        unless (null formulas) $ do
-            putStrLn "Formulas:"
-            forM_ formulas $ \(origin, f) -> do
-                putStrLn $ origin ++ ": " ++ show f
-            putStrLn "-----------------------"
+    when (debugMode && not (null formulas)) $ do
+        putStrLn "Formulas:"
+        forM_ formulas $ \(origin, f) -> do
+            putStrLn $ origin ++ ": " ++ show f
+        putStrLn "-----------------------"
 
     when onlyCheckSyntax $ do
         putStrLn "Syntax check successful"
