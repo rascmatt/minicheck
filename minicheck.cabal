@@ -43,7 +43,8 @@ test-suite minicheck-test
   hs-source-dirs:   test
   main-is:          Spec.hs
   other-modules:    Parser.CTLSpec,Parser.TSSpec,Extension.ParserSpec,
-                    Extension.TransformSpec,Model.TSSpec,Verify.CheckSpec
+                    Extension.TransformSpec,Model.TSSpec,Verify.CheckSpec,
+                    Model.PatternSpec
   build-depends:    base ^>=4.17,
                     minicheck,
                     containers ^>=0.6.7,
