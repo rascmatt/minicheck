@@ -2,7 +2,7 @@
 
 **minicheck** is a CTL (Computation Tree Logic) model checker written in Haskell.
 
-## 🔧 Building
+## Building
 
 Make sure you have [GHC](https://www.haskell.org/ghcup/) and [cabal](https://www.haskell.org/cabal/) installed.
 
@@ -25,11 +25,12 @@ alias minicheck=$(cabal list-bin minicheck)
 ```
 
 Now you can run it like this:
+
 ```bash
 minicheck data/soda.txt formulas/f1.ctl
 ```
 
-## 🏃 Running
+## Running
 
 Basic usage:
 
@@ -76,7 +77,7 @@ minicheck examples/soda.txt "EF (p && q)"
 
 ---
 
-## 🗂 TS Format (for minicheck)
+## TS Format (for minicheck)
 
 The TS format is a plain-text representation of a transition system. It consists of up to six (mandatory) sections in the following order: `states`, `actions`, `transitions`, `init`, `props`, `labels`. Section headers are optional and have aliases (e.g., `s`, `a`, `t`, etc.).
 
@@ -97,7 +98,7 @@ labels:      [(s1, p1), (s2, p2)]             -- aliases: lables, lable, l
 
 * Labels are pairs: (state, proposition) indicating propositions that hold at specific states
 
-### 🧼 Notes and Validation
+### Notes and Validation
 
 * States and actions must be **declared** before being referenced.
 * Every state in transitions, initial states, or labels must be declared.
@@ -106,7 +107,7 @@ labels:      [(s1, p1), (s2, p2)]             -- aliases: lables, lable, l
 * Extra or duplicate elements are **deduplicated automatically**.
 * States without outgoing transitions are automatically given a **self-loop** using a special action `_`.
 
-### 📄 Example
+### Example
 
 This example models a vending machine with two products and a single initial state (pay).
 
@@ -128,7 +129,7 @@ propositions: []
 labels: []
 ```
 
-## 🌳 CTL Format
+## CTL Format
 
 There are four temporal modalities. Each modality must be prepended by either `E` (Exists) or `A` (For all) quantifiers.
 Whitespace between quantifier and modalities is optional.
